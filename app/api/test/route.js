@@ -8,6 +8,7 @@ const model = genAI.getGenerativeModel({model: 'gemini-pro'});
 async function* streamIterator(stream) {
 
   for await (const chunk of stream) {
+    console.log(chunk.text());
     yield chunk.text();
   }
 }
@@ -34,9 +35,7 @@ export async function POST(request) {
   try {
     const result = await model.generateContentStream(req);
     const stream = iteratorToStream(streamIterator(result.stream));
-
-    console.log("Result");
-    console.log(result);
+    
     return new Response(stream, { status: 200 });
   } 
 

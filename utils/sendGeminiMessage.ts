@@ -17,6 +17,7 @@ export async function sendGeminiMessage(chatHistory: MessageHistoryProps, messag
     contents: [...chatHistory.contents, newMessage],
   };
 
+
   console.log("newChatHistory: ", newChatHistory);
   console.log("Json", JSON.stringify(newChatHistory));
 
@@ -27,6 +28,10 @@ export async function sendGeminiMessage(chatHistory: MessageHistoryProps, messag
     },
     body: JSON.stringify(newChatHistory),
   });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
 
   const stream = response.body as ReadableStream;
   return stream

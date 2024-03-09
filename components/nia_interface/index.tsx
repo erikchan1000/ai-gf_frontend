@@ -6,6 +6,7 @@ import { TextBox } from '@/components/textbox';
 import { sendGeminiMessage, readGeminiMessage } from '@/utils/sendGeminiMessage'; 
 import { MessageHistoryProps, ContentProps } from '@/components/nia_interface/interface';
 import { MessageHistory } from '@/components/message_history';
+import { sendElevenLabsMessage } from '@/utils/sendElevenLabsMessage';
 
 const NiaInterface = () => {
   const [response, setResponse] = useState<string>('');
@@ -27,8 +28,8 @@ const NiaInterface = () => {
     try {
       const stream = await sendGeminiMessage(chatHistory, message);
       const reader = readGeminiMessage(stream);
+      const audio = await sendElevenLabsMessage(stream);
       let newResponse = '';
-
       const newMessage: ContentProps = {
         role: "user",
         parts: [{ text: message}],

@@ -4,8 +4,9 @@ const voiceId = "TWUKKXAylkYxxlPe4gx0"; // replace with your voice_id
 const model = 'eleven_monolingual_v1';
 const wsUrl = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${model}`;
 
+
 export async function sendElevenLabsMessage(value: string ): Promise<Buffer> {
-  
+    
   const socket = new WebSocket(wsUrl);
   const eosMessage = {
     "text": "",
@@ -13,9 +14,6 @@ export async function sendElevenLabsMessage(value: string ): Promise<Buffer> {
 
   return new Promise<Buffer>((resolve, reject) => {
     const audioChunks: Buffer[] = [];
-    console.log("API Key: ", ELEVENLABS_API_KEY);
-    console.log(process.env.ELEVENLABS_API_KEY)
-    console.log(process.env)
     
     // Send BOS message when the WebSocket connection is opened
     socket.onopen = () => {
@@ -29,7 +27,6 @@ export async function sendElevenLabsMessage(value: string ): Promise<Buffer> {
         "xi_api_key": ELEVENLABS_API_KEY,
       };
 
-      console.log("Sending BOS message: ", bosMessage);
       socket.send(JSON.stringify(bosMessage));
 
       socket.send(JSON.stringify({

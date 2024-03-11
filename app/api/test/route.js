@@ -1,7 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAPI = process.env.GENERATIVE_API_KEY;
-console.log("Genapi", process.env);
 const genAI = new GoogleGenerativeAI(genAPI);
 
 const model = genAI.getGenerativeModel({model: 'gemini-pro'});

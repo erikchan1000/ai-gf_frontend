@@ -4,11 +4,11 @@ const voiceId = "TWUKKXAylkYxxlPe4gx0"; // replace with your voice_id
 const model = 'eleven_monolingual_v1';
 const wsUrl = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${model}`;
 
-export async function sendElevenLabsMessage(stream: ReadableStream<any>): Promise<Buffer> {
+export async function sendElevenLabsMessage(value: string ): Promise<Buffer> {
   
   const socket = new WebSocket(wsUrl);
   const eosMessage = {
-    "text": " ",
+    "text": "",
   }
 
   return new Promise<Buffer>((resolve, reject) => {
@@ -29,31 +29,12 @@ export async function sendElevenLabsMessage(stream: ReadableStream<any>): Promis
 
       console.log("Sending BOS message: ", bosMessage);
       socket.send(JSON.stringify(bosMessage));
-      const customWritableStream = new WritableStream({
-      write(chunk) {
-        console.log("WebSocket readyState: ", socket.readyState);
-        if (socket.readyState === WebSocket.OPEN) {
-          const text = new TextDecoder().decode(chunk);
-          const message = {
-            "text": text,
-            "try_trigger_generation": true,
-          };
-          console.log("Sending message to ElevenLabs: ", message);
 
-          socket.send(JSON.stringify(message));
-          }
-        }
-      });
-
-      // Pipe the input stream to the customWritableStream
-      stream.pipeTo(customWritableStream)
-      .then(() => {
-        // Do nothing here; the resolve will be called when the WebSocket connection is closed
-      })
-      .catch((error) => {
-        // If there's an error piping the stream, reject the promise
-        reject(error);
-      });
+      socket.send(JSON.stringify({
+        "text": value,
+        "xi_api_key": ELEVENLABS_API_KEY,
+      }))
+      socket.send(JSON.stringify(eosMessage));
     };
 
     // Handle incoming messages from the WebSocket server
@@ -77,8 +58,8 @@ export async function sendElevenLabsMessage(stream: ReadableStream<any>): Promis
     
     // Handle WebSocket connection closure
     socket.onclose = () => {
-      // If the WebSocket connection is closed, reject the promise
-      reject(new Error('WebSocket connection closed'));
+      console.log('WebSocket connection closed');
+      resolve(Buffer.concat(audioChunks));
     };
     
     // Handle WebSocket errors

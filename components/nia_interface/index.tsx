@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Box, Typography } from '@mui/material';
 import { TextBox } from '@/components/textbox';
 import { sendGeminiMessage, readGeminiMessage } from '@/utils/sendGeminiMessage'; 
@@ -12,7 +12,8 @@ const NiaInterface = () => {
   const [response, setResponse] = useState<string>('');
   const [chatHistory, setChatHistory] = useState<MessageHistoryProps>({contents: []});
   const [error, setError] = useState<boolean>(false);
-  
+  const audioPlayer = useRef<HTMLAudioElement | null>(null); 
+
   //use indexing 0 in parts to retrieve message, subsequent indexes are for context and prompting
   const updateChatHistory = useCallback((message: string, role: "user" | "model") => {
     const newMessage: ContentProps = {
@@ -23,24 +24,50 @@ const NiaInterface = () => {
   }
   , [chatHistory]);
 
+  const playAudio = useCallback(async (audio: Buffer) => {
+    if (!audioPlayer) {
+      console.error("Audio player not found");
+      return;
+    }
+
+    try {
+      const audioContext = new AudioContext();
+      const arrayBuffer = audio.buffer.slice(audio.byteOffset, audio.byteOffset + audio.byteLength);
+      const audioData = await audioContext.decodeAudioData(arrayBuffer);
+      console.log("Audio Data: ", audioData)
+      const source = audioContext.createBufferSource();
+      source.buffer = audioData;
+      source.connect(audioContext.destination);
+      source.start();
+    }
+    catch (error) {
+      console.error("Error playing audio: ", error);
+    }
+  }, [audioPlayer]) 
+
   const sendMessage = useCallback(async (message: string) => {
     updateChatHistory(message, "user");
     try {
       const stream = await sendGeminiMessage(chatHistory, message);
       const reader = readGeminiMessage(stream);
-      const audio = await sendElevenLabsMessage(stream);
+      
       let newResponse = '';
       const newMessage: ContentProps = {
         role: "user",
         parts: [{ text: message}],
       };
-      
+
       for await( const value of reader ) {
-        console.log("Prev:", chatHistory)
+        console.log("Value: ", value)
         newResponse += value;
         setChatHistory({contents: [...chatHistory.contents, newMessage, {role: "model", parts: [{text: newResponse}]}]});
         setError(false);
+        const audio = await sendElevenLabsMessage(value) as Buffer;
+        playAudio(audio);
       }
+
+      console.log("Stream Status: ", stream.locked);
+
       const updatedResponse: ContentProps = {
         role: "model",
         parts: [{ text: newResponse }],
@@ -53,7 +80,7 @@ const NiaInterface = () => {
       setResponse("Error sending message, try again later.");
       setError(true);
     }
-  }, [chatHistory, updateChatHistory]);
+  }, [chatHistory, updateChatHistory, playAudio]);
 
   console.log(chatHistory);
   
@@ -92,6 +119,7 @@ const NiaInterface = () => {
       >
         <TextBox handleMessageSend={sendMessage}/>
       </Box>
+      <audio ref={audioPlayer} />
     </Box>
   )
 }

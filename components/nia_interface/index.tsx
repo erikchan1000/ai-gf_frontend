@@ -1,53 +1,88 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { TextField, Button, Box, Typography } from '@mui/material';
-import { styled } from '@mui/system';
+import React, { useState, useCallback, useRef } from 'react';
+import { Box, Typography } from '@mui/material';
 import { TextBox } from '@/components/textbox';
 import { sendGeminiMessage, readGeminiMessage } from '@/utils/sendGeminiMessage'; 
-
-const StyledTextField = styled(TextField)({
-  '& .MuiOutlinedInput-root': {
-    borderRadius: '20px',
-    background: '#f4f4f4',
-    '& fieldset': {
-      border: 'none',
-    },
-    '&:hover fieldset': {
-      border: 'none',
-    },
-    '&.Mui-focused fieldset': {
-      border: 'none',
-    },
-  },
-  '& .sendButton': {
-    position: 'absolute',
-    right: '0px',
-    top: '0px',
-    height: '100%',
-    borderTopRightRadius: '20px',
-    borderBottomRightRadius: '20px',
-    zIndex: 1,
-  },
-});
-
-
+import { MessageHistoryProps, ContentProps } from '@/components/nia_interface/interface';
+import { MessageHistory } from '@/components/message_history';
+import { sendElevenLabsMessage } from '@/utils/sendElevenLabsMessage';
 
 const NiaInterface = () => {
-  const [messages, setMessages] = useState<string[]>([]);
-  const [inputText, setInputText] = useState<string>('');
   const [response, setResponse] = useState<string>('');
-  const [chatHistory, setChatHistory] = useState({contents: []});
-  
-  const sendMessage = async (message: string) => {
-    const stream = await sendGeminiMessage(chatHistory, message);
-    const reader = readGeminiMessage(stream);
-    let response = '';
-    for await( const value of reader ) {
-      response += value; 
-      setResponse(response);
-    }
+  const [chatHistory, setChatHistory] = useState<MessageHistoryProps>({contents: []});
+  const [error, setError] = useState<boolean>(false);
+  const audioPlayer = useRef<HTMLAudioElement | null>(null); 
+
+  //use indexing 0 in parts to retrieve message, subsequent indexes are for context and prompting
+  const updateChatHistory = useCallback((message: string, role: "user" | "model") => {
+    const newMessage: ContentProps = {
+      role: role,
+      parts: [{ text: message }],
+    };
+    setChatHistory({contents: [...chatHistory.contents, newMessage]});
   }
+  , [chatHistory]);
+
+  const playAudio = useCallback(async (audio: Buffer) => {
+    if (!audioPlayer) {
+      console.error("Audio player not found");
+      return;
+    }
+
+    try {
+      const audioContext = new AudioContext();
+      const arrayBuffer = audio.buffer.slice(audio.byteOffset, audio.byteOffset + audio.byteLength);
+      const audioData = await audioContext.decodeAudioData(arrayBuffer);
+      console.log("Audio Data: ", audioData)
+      const source = audioContext.createBufferSource();
+      source.buffer = audioData;
+      source.connect(audioContext.destination);
+      source.start();
+    }
+    catch (error) {
+      console.error("Error playing audio: ", error);
+    }
+  }, [audioPlayer]) 
+
+  const sendMessage = useCallback(async (message: string) => {
+    updateChatHistory(message, "user");
+    try {
+      const stream = await sendGeminiMessage(chatHistory, message);
+      const reader = readGeminiMessage(stream);
+      
+      let newResponse = '';
+      const newMessage: ContentProps = {
+        role: "user",
+        parts: [{ text: message}],
+      };
+
+      for await( const value of reader ) {
+        console.log("Value: ", value)
+        newResponse += value;
+        setChatHistory({contents: [...chatHistory.contents, newMessage, {role: "model", parts: [{text: newResponse}]}]});
+        setError(false);
+        const audio = await sendElevenLabsMessage(value) as Buffer;
+        playAudio(audio);
+      }
+
+      console.log("Stream Status: ", stream.locked);
+
+      const updatedResponse: ContentProps = {
+        role: "model",
+        parts: [{ text: newResponse }],
+      };
+
+      setChatHistory({contents: [...chatHistory.contents, newMessage, updatedResponse]});
+    }
+    catch (error) {
+      console.error("Error sending Gemini Message: ", error);
+      setResponse("Error sending message, try again later.");
+      setError(true);
+    }
+  }, [chatHistory, updateChatHistory, playAudio]);
+
+  console.log(chatHistory);
   
   return (
     <Box
@@ -63,7 +98,7 @@ const NiaInterface = () => {
       <Typography variant="h5">Nia Interface</Typography>
       <Box
         flex="1"
-        overflow="auto"
+        overflow="scroll"
         sx={{
           border: '1px solid gray',
           borderRadius: '20px',
@@ -74,10 +109,7 @@ const NiaInterface = () => {
           flexDirection: 'column',
         }}
       >
-        {messages.map((message, index) => (
-          <Typography key={index}>{message}</Typography>
-        ))}
-        <Typography>{response}</Typography>
+        <MessageHistory contents={chatHistory.contents}/>
       </Box>
       <Box
         sx={{
@@ -87,6 +119,7 @@ const NiaInterface = () => {
       >
         <TextBox handleMessageSend={sendMessage}/>
       </Box>
+      <audio ref={audioPlayer} />
     </Box>
   )
 }

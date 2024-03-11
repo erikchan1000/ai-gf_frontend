@@ -1,8 +1,8 @@
- interface ContentProps {
+export interface ContentProps {
    role: "user" | "model";
-   parts: string[];
+   parts: { text: string }[];
  };
 
-interface MessageHistoryProps {
+export interface MessageHistoryProps {
   contents: ContentProps[];
 };

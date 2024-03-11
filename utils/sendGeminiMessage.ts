@@ -18,9 +18,6 @@ export async function sendGeminiMessage(chatHistory: MessageHistoryProps, messag
   };
 
 
-  console.log("newChatHistory: ", newChatHistory);
-  console.log("Json", JSON.stringify(newChatHistory));
-
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {

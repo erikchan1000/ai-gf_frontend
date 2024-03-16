@@ -1,15 +1,15 @@
+
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
 const genAPI = process.env.GENERATIVE_API_KEY;
-const genAI = new GoogleGenerativeAI(genAPI);
+const { VertexAI } = require('@google-cloud/vertexai');
 
-const model = genAI.getGenerativeModel({model: 'gemini-pro'});
+const vertexAI = new VertexAI({project: 'breakinghits-22ab7', location: 'us-central1'});
+const model = vertexAI.getGenerativeModel({model: 'gemini-1.0-pro'});
 
 async function* streamIterator(stream) {
 
   for await (const chunk of stream) {
-    console.log(chunk.text());
-    yield chunk.text();
+    yield chunk["candidates"][0]["content"]["parts"][0]["text"];
   }
 }
 
@@ -29,11 +29,14 @@ function iteratorToStream(iterator) {
 
 export async function POST(request) {
   console.log("Request Body")
-  const req = await request.json();
+  let req = await request.json();
   console.log(req);
 
   try {
-    const result = await model.generateContentStream(req);
+    console.log("Generating Content Stream")
+    const result = await model.generateContentStream(req)
+
+    console.log("Result")
     const stream = iteratorToStream(streamIterator(result.stream));
     
     return new Response(stream, { status: 200 });
@@ -42,6 +45,7 @@ export async function POST(request) {
   catch (error) {
     console.log(error);
     return new Response('No response body', { status: 500 });
+
   }
 }
 

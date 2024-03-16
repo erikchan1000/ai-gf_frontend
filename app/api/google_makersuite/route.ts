@@ -2,6 +2,7 @@ import {convertGooglePrompt} from "@/middleware/googlePromptConverter";
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'stream';
 import fetch from 'node-fetch';
+import prompts from '@/utils/prompt.json';
 
 type GoogleRequest = {
   body: {
@@ -20,8 +21,10 @@ type GoogleRequest = {
 }
 
 
+
 async function sendMakerSuiteRequest(request: GoogleRequest, res: NextApiResponse) {
   const apiKey = process.env.MAKER_SUITE_API_KEY;
+  console.log(prompts);
 
   const model = String (request.body.model);
   

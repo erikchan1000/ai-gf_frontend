@@ -7,15 +7,15 @@ import { sendGeminiMessage, readGeminiMessage } from '@/utils/sendGeminiMessage'
 import { MessageHistoryProps, ContentProps } from '@/components/nia_interface/interface';
 import { MessageHistory } from '@/components/message_history';
 import { sendElevenLabsMessage, readElevenLabsMessage, createSocket } from '@/utils/sendElevenLabsMessage';
+import Aud from './test.json';
+import { StreamPlayer, StreamPlayerType } from '@/utils/audio_queue';
 
 const NiaInterface = () => {
   const [response, setResponse] = useState<string>('');
   const [chatHistory, setChatHistory] = useState<MessageHistoryProps>({ contents: [] });
   const [error, setError] = useState<boolean>(false);
-  const audioPlayer = useRef<HTMLAudioElement | null>(null);
-
-  const [audioQueue, setAudioQueue] = useState<any>([]);
-
+  let streamPlayer: StreamPlayerType;
+  
   //use indexing 0 in parts to retrieve message, subsequent indexes are for context and prompting
   const updateChatHistory = useCallback((message: string, role: "user" | "model") => {
     const newMessage: ContentProps = {
@@ -26,35 +26,8 @@ const NiaInterface = () => {
   }
     , [chatHistory]);
 
-  useEffect(() => {
-    const playNextAudio = async () => {
-
-      if (audioQueue.length === 0) {
-        return;
-      }
-
-      const audio = audioQueue.shift();
-
-      if (!audio) {
-        return;
-      }
-
-      console.log("AUDIO PLAYER: ", audio)
-      //audio is a string representing mp3 audio
-      const decodedAudio = Buffer.from(audio, 'base64');
-      const audioBlob = new Blob([decodedAudio], { type: 'audio/wav' });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      audioPlayer.current = new Audio(audioUrl);
-      audioPlayer.current.play();
-      audioPlayer.current!.onended = () => {
-        playNextAudio();
-      };
-    }
-    playNextAudio();
-
-  }, [audioQueue]);
-
   const sendMessage = useCallback(async (message: string) => {
+    streamPlayer = new StreamPlayer();
     updateChatHistory(message, "user");
     try {
       const stream = await sendGeminiMessage(chatHistory, message);
@@ -69,7 +42,6 @@ const NiaInterface = () => {
       };
 
       const audioStream = await sendElevenLabsMessage(tee[1],socket); 
-      let audioQueue2: any = [];
       const audioReader = readElevenLabsMessage(audioStream);
 
       const textPromise = (async () => {
@@ -85,13 +57,15 @@ const NiaInterface = () => {
 
       const audioPromise = (async () => {
         for await (const audio of audioReader) {
-          audioQueue2.push(audio);
-          setAudioQueue(audioQueue2);
+          console.log("Playing Audio")
+          //streamPlayer.playAudioChunk(audio);
+          streamPlayer.addBufferArray(audio);
         }
-      }
-      )();
+      })();
 
       await Promise.all([textPromise, audioPromise]);
+
+      streamPlayer.playBufferArray();
 
       const updatedResponse: ContentProps = {
         role: "model",
@@ -143,7 +117,6 @@ const NiaInterface = () => {
       >
         <TextBox handleMessageSend={sendMessage} />
       </Box>
-      <audio ref={audioPlayer} />
     </Box>
   )
 }

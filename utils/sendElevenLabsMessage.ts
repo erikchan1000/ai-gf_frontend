@@ -33,7 +33,6 @@ export async function sendElevenLabsMessage(stream: ReadableStream, socket: WebS
       start(controller) {
         socket.onmessage = (event) => {
           const data = JSON.parse(event.data);
-          console.log(data);
           if (data.audio) {
             controller.enqueue(data.audio);
           }

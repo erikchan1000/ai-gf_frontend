@@ -1,11 +1,10 @@
 //Audio class that takes in a stream and plays it as it is streaming
-import { resolve } from "path";
-import { readElevenLabsMessage } from "./sendElevenLabsMessage";
 
 export interface StreamPlayerType {
   playAudioChunk: (base64Data: string) => void;
   playBufferArray: () => void;
   addBufferArray: (base64Data: string) => void;
+  customPlay: (base64Data: string) => void;
 }
 
 export class StreamPlayer implements StreamPlayerType {
@@ -16,6 +15,8 @@ export class StreamPlayer implements StreamPlayerType {
   private isQueuePlaying: boolean;
   private playedCount: number;
   private bufferArray: Buffer[];
+  private testContext: AudioContext;
+
 
   constructor() {
     this.audioContext = new AudioContext()
@@ -25,7 +26,13 @@ export class StreamPlayer implements StreamPlayerType {
     this.isQueuePlaying = false;
     this.playedCount = 0;
     this.bufferArray = [];
+    this.testContext = new AudioContext();
   }
+
+  public async customPlay() {
+    await this.testContext.audioWorklet.addModule('audio_processor.js');
+
+  } 
 
   public async playBufferArray() {
     if (!this.bufferArray.length) {
@@ -55,8 +62,6 @@ export class StreamPlayer implements StreamPlayerType {
       return;
     }
     this.audioQueue.push(base64Data);
-    console.log("Audio Data", base64Data, this.playedCount)
-    console.log(this.isQueuePlaying, this.playedCount)
     
     if (!this.isQueuePlaying) {
       this.isQueuePlaying = true;
@@ -70,7 +75,6 @@ export class StreamPlayer implements StreamPlayerType {
       return
     }
 
-    console.log("Audio Queue", this.audioQueue)
     const base64Data = this.audioQueue.shift()!;
     const decodedData = await this.decodeBase64Data(base64Data);
 
@@ -90,12 +94,13 @@ export class StreamPlayer implements StreamPlayerType {
     const duration = this.sourceNode.buffer!.duration * 1000;
     const triggerTime = duration;
 
-    const timeId = setTimeout(() => {
+    /*const timeId = setTimeout(() => {
       this.playNextAudioChunk();
-    }, triggerTime);
+    }, triggerTime);*/
     
   
     this.sourceNode!.onended = () => {
+      this.playNextAudioChunk();
       this.isPlaying = false
     }
   }

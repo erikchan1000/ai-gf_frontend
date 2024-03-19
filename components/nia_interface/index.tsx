@@ -58,14 +58,12 @@ const NiaInterface = () => {
       const audioPromise = (async () => {
         for await (const audio of audioReader) {
           console.log("Playing Audio")
-          //streamPlayer.playAudioChunk(audio);
-          streamPlayer.addBufferArray(audio);
         }
       })();
 
       await Promise.all([textPromise, audioPromise]);
 
-      streamPlayer.playBufferArray();
+      streamPlayer.playBufferArray();playChunk
 
       const updatedResponse: ContentProps = {
         role: "model",

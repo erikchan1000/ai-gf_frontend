@@ -50,9 +50,6 @@ export async function sendGeminiMessage(chatHistory: MessageHistoryProps, messag
 
 export async function* readGeminiMessage(stream: ReadableStream): AsyncGenerator<string> {
   const reader = stream.getReader();
-  const splitters = new Set([".", ",", "?", "!", ";", ":", "—", "-", "(", ")", "[", "]", "{", "}"]);
-  let buffer = '';
-
   while (true) {
     const { value, done } = await reader.read();
     if (done) {
@@ -60,22 +57,6 @@ export async function* readGeminiMessage(stream: ReadableStream): AsyncGenerator
     }
 
     const data = new TextDecoder().decode(value);
-
-    for (const char of data) {
-      buffer += char;
-
-      if (splitters.has(char)) {
-        // Check if the buffer contains a full sentence
-        if (buffer.length > 0) {
-          yield buffer;
-          buffer = ''; // Clear the buffer after yielding a full sentence
-        }
-      }
-    }
-  }
-
-  // Yield any remaining buffer as the last sentence if it's not empty
-  if (buffer.trim().length > 0) {
-    yield buffer.trim();
+    yield data;
   }
 }

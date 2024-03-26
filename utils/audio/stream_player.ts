@@ -14,18 +14,21 @@ class StreamPlayer {
   async test() {
     this.audioContext = new AudioContext();
     console.log("Context created", this.audioContext)
-    await this.audioContext.audioWorklet.addModule('utils/audio/audio_worklet.ts').then(() => {
+    await this.audioContext.audioWorklet.addModule('audio_worklet.js').then(() => {
       console.log("Worklet added", this.audioContext!.audioWorklet)
     }).catch((e) => {
       console.error("Error adding worklet", e)
+      return new Promise((resolve, reject) => {
+        reject(e)
+      })
     });
 
     this.audioWorkletNode = new AudioWorkletNode(this.audioContext, 'custom-audio-worklet-processor');
     console.log("Worklet node created")
-    this.audioWorkletNode.connect(this.audioContext.destination);
     console.log("Worklet node connected")
     this.streamAudioSource = new StreamAudioSource(this.audioContext, this.audioWorkletNode);
     console.log("Stream audio source created")
+    this.audioWorkletNode.connect(this.audioContext.destination);
   }
 
   async start() {
@@ -53,14 +56,22 @@ class StreamPlayer {
 
   stop() {
     console.log(this.streamAudioSource)
+    if (!this.streamAudioSource) {
+      return;
+    }
+
     this.streamAudioSource!.stop();
   }
 
-  feed(audioBuffer: Buffer) {
+  async feed(audioBuffer: Uint8Array) {
+    console.log("Feeding audio buffer", audioBuffer.buffer)
     if (this.streamAudioSource) {
-      this.streamAudioSource.feed(audioBuffer);
+      const data = await this.audioContext!.decodeAudioData(audioBuffer.buffer);
+      console.log("Decoded audio data", data)
+      this.streamAudioSource.feed(data);
     }
   }
+  
 }
 
 export { StreamPlayer };

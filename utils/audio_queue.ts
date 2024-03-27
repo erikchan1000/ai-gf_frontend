@@ -12,6 +12,7 @@ export class StreamPlayer implements StreamPlayerType {
   private audioQueue: Buffer[];
   private bufferArray: Buffer[];
   private finishedStreaming: boolean;
+  private startTime: number;
 
 
   constructor() {
@@ -21,6 +22,7 @@ export class StreamPlayer implements StreamPlayerType {
     this.bufferArray = [];
     this.finishedStreaming = false;
     this.checkEnded();
+    this.startTime = 0;
   }
 
   private async checkEnded() {
@@ -74,10 +76,15 @@ export class StreamPlayer implements StreamPlayerType {
   public async updateAudioQueue(base64Data: string) {
     console.log("Updated audio queue", this.audioQueue);
     console.log(this.finishedStreaming);
-
+    
     if (base64Data === 'done') {
       this.finishedStreaming = true;  
-  }
+    }
+
+    if (this.audioQueue.length === 0) {
+      console.log("Audio Time: ", this.audioContext.currentTime);
+      this.startTime = this.audioContext.currentTime;
+    }
 
     const decodedData = Buffer.from(base64Data, 'base64'); 
     this.audioQueue.push(decodedData);
@@ -93,8 +100,8 @@ export class StreamPlayer implements StreamPlayerType {
       this.sourceNode.disconnect();
     }
 
-    console.log("Audio context time: ", this.audioContext.currentTime);
-    newSourceNode.start(0, this.audioContext.currentTime);
+    console.log("Audio context time: ", this.audioContext.currentTime - this.startTime);
+    newSourceNode.start(0, this.audioContext.currentTime - this.startTime);
 
 
     this.sourceNode = newSourceNode;

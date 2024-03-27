@@ -35,11 +35,6 @@ const Test = () => {
   const [audioContext, setAudioContext] = useState<AudioContext>(new AudioContext());
   const [ mediaStreamNode, setMediaStreamNode ] = useState<MediaStreamAudioSourceNode>();
 
-  const api_key = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
-  const voiceId = "XrsGlhubmxHmYqon43Je"; // replace with your voice_id
-  const model = 'eleven_monolingual_v1';
-  const wsUrl = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${model}`;
-  
   useEffect(() => {
     let queue: any = [];
 

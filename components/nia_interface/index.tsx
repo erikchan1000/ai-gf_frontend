@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
+import Button from '@mui/material/Button';
 import { TextBox } from '@/components/textbox';
 import { sendGeminiMessage, readGeminiMessage } from '@/utils/sendGeminiMessage';
 import { MessageHistoryProps, ContentProps } from '@/components/nia_interface/interface';
@@ -13,7 +14,11 @@ const NiaInterface = () => {
   const [response, setResponse] = useState<string>('');
   const [chatHistory, setChatHistory] = useState<MessageHistoryProps>({ contents: [] });
   const [error, setError] = useState<boolean>(false);
+  const [activateVoice, setActivateVoice] = useState<boolean>(false);
   let streamPlayer: StreamPlayerType | null = null;
+  
+  
+  console.log(chatHistory)
 
   //use indexing 0 in parts to retrieve message, subsequent indexes are for context and prompting
   const updateChatHistory = useCallback((message: string, role: "user" | "model") => {
@@ -25,7 +30,7 @@ const NiaInterface = () => {
   }
     , [chatHistory]);
   
-  
+   
   const sendMessage = useCallback(async (message: string) => {
     if (!streamPlayer) {
       streamPlayer = new StreamPlayer();
@@ -37,6 +42,7 @@ const NiaInterface = () => {
       const tee = stream.tee();
       const reader = readGeminiMessage(tee[0]);
       let newResponse = '';
+      let audioPromise: Promise<void> | null = null;
       const socket: WebSocket = createSocket();
 
       const newMessage: ContentProps = {
@@ -44,8 +50,18 @@ const NiaInterface = () => {
         parts: [{ text: message }],
       };
 
-      const audioStream = await sendElevenLabsMessage(tee[1],socket); 
-      const audioReader = readElevenLabsMessage(audioStream);
+      if (activateVoice) {
+
+        const audioStream = await sendElevenLabsMessage(tee[1],socket);
+        const audioReader = readElevenLabsMessage(audioStream);
+        audioPromise = (async () => {
+        for await (const audio of audioReader) {
+          console.log("Playing Audio")
+          streamPlayer.updateAudioQueue(audio);
+        }
+      })();
+
+      }
 
       const textPromise = (async () => {
         for await (const response of reader) {
@@ -58,15 +74,13 @@ const NiaInterface = () => {
         }
       })();
 
-      const audioPromise = (async () => {
-        for await (const audio of audioReader) {
-          console.log("Playing Audio")
-          streamPlayer.updateAudioQueue(audio);
-        }
-      })();
-
+      
 
       await Promise.all([textPromise, audioPromise]);
+      
+      if (activateVoice) {
+        streamPlayer.updateAudioQueue('done');
+      }
 
       const updatedResponse: ContentProps = {
         role: "model",
@@ -114,9 +128,17 @@ const NiaInterface = () => {
         sx={{
           width: '80%',
           position: 'relative',
+          display: 'flex',
         }}
       >
         <TextBox handleMessageSend={sendMessage} />
+        <Button onClick={() => setActivateVoice(!activateVoice)}
+          sx={{
+            marginLeft: '10px',
+          }}
+          color={activateVoice ? 'success' : 'error'}
+          variant="contained"
+        >Activate Voice</Button>
       </Box>
     </Box>
   )

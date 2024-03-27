@@ -28,7 +28,7 @@ export class StreamPlayer implements StreamPlayerType {
   private async checkEnded() {
     setInterval(() => {
 
-      if (this.finishedStreaming && this.audioContext.currentTime > this.sourceNode!.buffer!.duration ) {
+      if (this.finishedStreaming && this.audioContext.currentTime - this.startTime > this.sourceNode!.buffer!.duration ) {
         console.log("Audio context ended");
         this.audioContext.close();
         this.audioContext = new AudioContext();

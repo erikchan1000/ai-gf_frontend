@@ -4,23 +4,18 @@ import prompts from '@/utils/prompt.json';
 const genAPI = process.env.GENERATIVE_API_KEY;
 const { VertexAI } = require('@google-cloud/vertexai');
 
-const prompt = `Reply concisely and restrict long winded responses. 
-  Maximum of 3 sentences per response.\n
-  Do not repeat yourself in generating text.\n
-  You are a support bot for a music company called breaking hits.\n
+const prompt = `You are a support bot for a music company called breaking hits.\n
   This is background information on Breaking hits:\n${prompts["information_prompt"]}\n
-  Answer following inputs based on the information provided above.\n
   If asked about irrelevant information, respond with "I'm sorry, I don't have that information".\n
   This is your personality: ${prompts["personality_prompt"]}\n
-
-  This is the message you need to respond to: \n
 `
 
 
 const vertexAI = new VertexAI({project: 'breakinghits-22ab7', location: 'us-central1'});
-const model = vertexAI.getGenerativeModel({model: 'gemini-1.0-pro-001'});
+const model = vertexAI.getGenerativeModel({model: 'gemini-1.0-pro'});
 const chat = model.startChat({});
-chat.sendMessage(prompt);
+await chat.sendMessage(prompt);
+console.log("Reinitializing")
 
 
 async function* streamIterator(stream) {

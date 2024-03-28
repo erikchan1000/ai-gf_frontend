@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import { TextBox } from '@/components/textbox';
@@ -17,8 +17,7 @@ const NiaInterface = () => {
   const [activateVoice, setActivateVoice] = useState<boolean>(false);
   let streamPlayer: StreamPlayerType | null = null;
   
-  
-  console.log(chatHistory)
+  console.log(activateVoice)
 
   //use indexing 0 in parts to retrieve message, subsequent indexes are for context and prompting
   const updateChatHistory = useCallback((message: string, role: "user" | "model") => {
@@ -95,7 +94,7 @@ const NiaInterface = () => {
       setResponse("Error sending message, try again later.");
       setError(true);
     }
-  }, [chatHistory, updateChatHistory]);
+  }, [chatHistory, updateChatHistory, activateVoice]);
 
   return (
     <Box

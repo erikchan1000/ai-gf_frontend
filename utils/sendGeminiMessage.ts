@@ -33,13 +33,15 @@ export async function sendGeminiMessage(chatHistory: MessageHistoryProps, messag
     contents: [...chatHistory.contents, newMessage],
   };
 
+   console.log("Chat History: ", newChatHistory) 
+
 
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(newChatHistory),
+    body: JSON.stringify({chatMessage: message}),
   }).catch((error) => {
     console.error('Error:', error);
     console.log(JSON.stringify(newChatHistory));

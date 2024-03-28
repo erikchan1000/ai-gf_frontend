@@ -3,7 +3,7 @@ const voiceId = "XrsGlhubmxHmYqon43Je"; // replace with your voice_id
 const model = 'eleven_monolingual_v1';
 const wsUrl = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${model}`;
 
-export async function* readElevenLabsMessage(stream: ReadableStream): AsyncGenerator<any> { 
+export async function* readElevenLabsMessage(stream: ReadableStream) { 
   const reader = stream.getReader();
   while (true) {
     const { value, done } = await reader.read();

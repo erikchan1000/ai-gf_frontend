@@ -1,27 +1,12 @@
 
 import { MessageHistoryProps } from '@/components/nia_interface/interface';
-import prompts from '@/utils/prompt.json'
-
-interface ChatMessage {
-  role: "user";
-  parts: { text: string }[];
-}
-
-const prompt = `Reply concisely and restrict long winded responses.\n
-  You are a support bot for a music company called breaking hits.\n
-  This is background information on Breaking hits:\n${prompts["information_prompt"]}\n
-  If asked about irrelevant information, respond with "I'm sorry, I don't have that information".\n
-  This is your personality: ${prompts["personality_prompt"]}\n
-`
-
-const testPrompt = ""
 
 export async function sendGeminiMessage(chatHistory: MessageHistoryProps, message: string): Promise<ReadableStream> {
   const endpoint = '/api/test';
   
   const newMessage = {
     role: "user",
-    parts: [{ text: prompt + message }],
+    parts: [{ text: message }],
   };
 
   const newChatHistory = {

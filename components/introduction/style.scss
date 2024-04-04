@@ -1,0 +1,59 @@
+$breakinghits-color-brand-text-gradient-stop1: #4285f4;
+$breakinghits-color-brand-text-gradient-stop2: #9b72cb;
+$breakinghits-color-brand-text-gradient-stop3: #d96570;
+$breakinghits-color-brand-surface: #131314;
+
+.subheader {
+  font-size: 5rem;
+  color: $breakinghits-color-brand-surface;
+}
+
+.introduction-header {
+  background: linear-gradient(74deg, $breakinghits-color-brand-text-gradient-stop1 0,
+    $breakinghits-color-brand-text-gradient-stop2 9%,
+    $breakinghits-color-brand-text-gradient-stop3 20%,
+    $breakinghits-color-brand-text-gradient-stop3 24%,
+    $breakinghits-color-brand-text-gradient-stop2 35%,
+    $breakinghits-color-brand-text-gradient-stop1 44%,
+    $breakinghits-color-brand-text-gradient-stop2 50%,
+    $breakinghits-color-brand-text-gradient-stop3 56%,
+    $breakinghits-color-brand-surface 75%,
+    $breakinghits-color-brand-surface 100%
+  );
+  color: transparent;
+  -webkit-background-clip: text;
+  font-size: 5rem;
+  width: fit-content;
+  background-size: 300%;
+  background-position: 100% 0%;
+  
+  @keyframes gradient {
+    0% {
+      background-position: 100% 0%;
+    }
+    100% {
+      background-position: 0% 0%;
+    }
+  }
+
+  animation: gradient 2s linear 0.5s forwards;
+}
+
+.reveal-mask {
+  overflow: hidden;
+  width: 0%;
+  height: auto;
+  max-width: fit-content;
+  white-space: nowrap;
+
+  @keyframes reveal {
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  animation: reveal 2s 0.5s linear forwards;
+}

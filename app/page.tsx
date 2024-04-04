@@ -1,11 +1,12 @@
 'use client'
 
 import NiaInterface from '@/components/nia_interface';
-import { StyledEngineProvider } from '@mui/material';
+import Introduction from '@/components/introduction';
+
 export default function Home() {
 
   return (
-      <main className="h-screen flex justify-center items-center p-10">
+      <main className="h-screen flex justify-center items-center pt-5 p-10">
         <NiaInterface />
       </main>
   )

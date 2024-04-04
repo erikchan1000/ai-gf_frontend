@@ -2,13 +2,15 @@
 
 import React, { useState, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
-import Button from '@mui/material/Button';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import IconButton from '@mui/material/IconButton';
 import { TextBox } from '@/components/textbox';
 import { sendGeminiMessage, readGeminiMessage } from '@/utils/sendGeminiMessage';
 import { MessageHistoryProps, ContentProps } from '@/components/nia_interface/interface';
 import { MessageHistory } from '@/components/message_history';
 import { sendElevenLabsMessage, readElevenLabsMessage, createSocket } from '@/utils/sendElevenLabsMessage';
 import { StreamPlayer, StreamPlayerType } from '@/utils/audio_queue';
+import Introduction from '@/components/introduction';
 
 const NiaInterface = () => {
   const [response, setResponse] = useState<string>('');
@@ -107,20 +109,24 @@ const NiaInterface = () => {
         width: '100%',
       }}
     >
-      <Typography variant="h5">Nia Interface</Typography>
+      <Typography variant="h5"
+        sx={{
+          color: 'white',
+          opacity: 0.6,
+          marginRight: 'auto'
+        }}
+      >Nia AI Assistant Beta</Typography>
       <Box
         flex="1"
         overflow="scroll"
         sx={{
-          border: '1px solid gray',
-          borderRadius: '20px',
-          width: '100%',
-          padding: '10px',
-          margin: '10px',
+          width: '80%',
           display: 'flex',
           flexDirection: 'column',
+          marginTop: '30px', 
         }}
       >
+        <Introduction display={chatHistory.contents.length === 0} />
         <MessageHistory contents={chatHistory.contents} />
       </Box>
       <Box
@@ -131,13 +137,19 @@ const NiaInterface = () => {
         }}
       >
         <TextBox handleMessageSend={sendMessage} />
-        <Button onClick={() => setActivateVoice(!activateVoice)}
+        <IconButton onClick={() => setActivateVoice(!activateVoice)}
           sx={{
             marginLeft: '10px',
           }}
-          color={activateVoice ? 'success' : 'error'}
-          variant="contained"
-        >Activate Voice</Button>
+
+        >
+
+          <VolumeUpIcon
+            sx={{
+              color: `${activateVoice ? 'green' : 'red'}`,
+            }}
+          />
+         </IconButton> 
       </Box>
     </Box>
   )

@@ -109,13 +109,13 @@ const NiaInterface = () => {
         width: '100%',
       }}
     >
-      <Typography variant="h5"
+      <Typography variant="h6"
         sx={{
           color: 'white',
           opacity: 0.6,
           marginRight: 'auto'
         }}
-      >Nia AI Assistant Beta</Typography>
+      >Nia AI Assistant Beta v0.1</Typography>
       <Box
         flex="1"
         overflow="scroll"

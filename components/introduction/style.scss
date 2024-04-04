@@ -6,6 +6,9 @@ $breakinghits-color-brand-surface: #131314;
 .subheader {
   font-size: 5rem;
   color: $breakinghits-color-brand-surface;
+  @media (max-width: 768px) {
+    font-size: 3rem;
+  }
 }
 
 .introduction-header {
@@ -23,9 +26,12 @@ $breakinghits-color-brand-surface: #131314;
   color: transparent;
   -webkit-background-clip: text;
   font-size: 5rem;
-  width: fit-content;
   background-size: 300%;
   background-position: 100% 0%;
+  //screen size mobile
+  @media (max-width: 768px) {
+    font-size: 3rem;
+  }
   
   @keyframes gradient {
     0% {
@@ -44,7 +50,6 @@ $breakinghits-color-brand-surface: #131314;
   width: 0%;
   height: auto;
   max-width: fit-content;
-  white-space: nowrap;
 
   @keyframes reveal {
     0% {

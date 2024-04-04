@@ -18,7 +18,6 @@ const Introduction: React.FC<IntroductionProps> = ({display}) => {
       <div className="reveal-mask">
         <h1
           className="introduction-header"
-          key="introduction"
         >Hello, Neil</h1>
       </div>
       <h1 className="subheader">Welcome to Nia</h1>

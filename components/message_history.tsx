@@ -3,7 +3,7 @@ import { NewMessageProps } from '@/components/nia_interface/interface';
 import Image from 'next/image';
 import NeilPicture from '@/public/neil.jpg';
 import LinearProgress from '@mui/material/LinearProgress';
-import NiaPicture from '@/public/nia.png';
+import NiaPicture from '@/public/Nia.png';
 
 export const MessageHistory = (props: NewMessageProps) => {
   const regex = /\bError[^\n.]*[.?!]/g;

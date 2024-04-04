@@ -17,9 +17,10 @@ const NiaInterface = () => {
   const [chatHistory, setChatHistory] = useState<MessageHistoryProps>({ contents: [] });
   const [error, setError] = useState<boolean>(false);
   const [activateVoice, setActivateVoice] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
   let streamPlayer: StreamPlayerType | null = null;
   
-  console.log(activateVoice)
 
   //use indexing 0 in parts to retrieve message, subsequent indexes are for context and prompting
   const updateChatHistory = useCallback((message: string, role: "user" | "model") => {
@@ -36,7 +37,7 @@ const NiaInterface = () => {
     if (!streamPlayer) {
       streamPlayer = new StreamPlayer();
     }
-
+    setLoading(true);
     updateChatHistory(message, "user");
     try {
       const stream = await sendGeminiMessage(chatHistory, message);
@@ -63,6 +64,8 @@ const NiaInterface = () => {
       })();
 
       }
+
+      setLoading(false);
 
       const textPromise = (async () => {
         for await (const response of reader) {
@@ -127,7 +130,7 @@ const NiaInterface = () => {
         }}
       >
         <Introduction display={chatHistory.contents.length === 0} />
-        <MessageHistory contents={chatHistory.contents} />
+        <MessageHistory contents={chatHistory.contents} loading={loading}/>
       </Box>
       <Box
         sx={{

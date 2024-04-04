@@ -6,3 +6,7 @@ export interface ContentProps {
 export interface MessageHistoryProps {
   contents: ContentProps[];
 };
+
+export interface NewMessageProps extends MessageHistoryProps {
+  loading: boolean;
+}

@@ -1,11 +1,11 @@
 import React from 'react';
-import { MessageHistoryProps } from '@/components/nia_interface/interface';
+import { NewMessageProps } from '@/components/nia_interface/interface';
 import Image from 'next/image';
 import NeilPicture from '@/public/neil.jpg';
-import CloudIcon from '@mui/icons-material/Cloud';
-import NiaPicture from '@/public/Nia.png';
+import LinearProgress from '@mui/material/LinearProgress';
+import NiaPicture from '@/public/nia.png';
 
-export const MessageHistory = (props: MessageHistoryProps) => {
+export const MessageHistory = (props: NewMessageProps) => {
   const regex = /\bError[^\n.]*[.?!]/g;
   return (
     <div>
@@ -58,6 +58,16 @@ export const MessageHistory = (props: MessageHistoryProps) => {
                 {errors[0]}
               </strong> : ''
             }
+            {props.loading && index === props.contents.length - 1 ? 
+              <LinearProgress
+               sx={{
+                  color: '#99327e',
+                  marginLeft: '10px',
+                  marginRight: '10px',
+                  marginTop: '20px',
+                  borderRadius: '30px',
+                }}
+              /> : ''}
           </div>
         );
       })}

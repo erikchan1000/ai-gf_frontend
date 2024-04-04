@@ -1,8 +1,9 @@
 import React from 'react';
 import { MessageHistoryProps } from '@/components/nia_interface/interface';
 import Image from 'next/image';
-import NeilPicture from '@/public/neil.png';
+import NeilPicture from '@/public/neil.jpg';
 import CloudIcon from '@mui/icons-material/Cloud';
+import NiaPicture from '@/public/Nia.png';
 
 export const MessageHistory = (props: MessageHistoryProps) => {
   const regex = /\bError[^\n.]*[.?!]/g;
@@ -28,11 +29,15 @@ export const MessageHistory = (props: MessageHistoryProps) => {
               loading="eager"
             /> : 
             <div className="h-[40px] w-[40px]"> 
-              <CloudIcon sx={{
-                height: '100%',
-                width: '100%',
-                color: 'white'
-              }}/>
+              <Image src={NiaPicture} alt="Nia" 
+                style={{
+                  borderRadius: '100%',
+                  height: '40px',
+                  width: '40px',
+                  objectFit: 'cover',
+                }}
+                loading="eager"
+              />
             </div>
             }
             <p

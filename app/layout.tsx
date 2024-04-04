@@ -26,6 +26,17 @@ export default function RootLayout({
         <AppRouterCacheProvider>
           {children}
         </AppRouterCacheProvider>
+        <div className='absolute bottom-0 right-[50%] p-2'
+          style={{
+            margin: 'auto',
+            transform: 'translateX(50%)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <p className='text-white text-xs opacity-50'>
+            © 2024 Breaking Hits, Inc. All Rights Reserved.
+          </p>
+        </div>
       </body>
     </html>
   )

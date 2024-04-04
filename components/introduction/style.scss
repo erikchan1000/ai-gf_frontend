@@ -50,6 +50,7 @@ $breakinghits-color-brand-surface: #131314;
   width: 0%;
   height: auto;
   max-width: fit-content;
+  white-space: nowrap;
 
   @keyframes reveal {
     0% {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import IconButton from '@mui/material/IconButton';
@@ -18,8 +18,30 @@ const NiaInterface = () => {
   const [error, setError] = useState<boolean>(false);
   const [activateVoice, setActivateVoice] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [autoScroll, setAutoScroll] = useState<boolean>(true);
+  console.log("Scrolling: ", autoScroll)
 
   let streamPlayer: StreamPlayerType | null = null;
+
+  useEffect(() => {
+    console.log(scrollRef)
+    if (scrollRef.current && autoScroll) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
+    }
+  }, [chatHistory, autoScroll])
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      if (scrollTop + clientHeight === scrollHeight) {
+        setAutoScroll(true);
+      }
+      else {
+        setAutoScroll(false);
+      }
+    }
+  }
   
 
   //use indexing 0 in parts to retrieve message, subsequent indexes are for context and prompting
@@ -34,6 +56,7 @@ const NiaInterface = () => {
   
    
   const sendMessage = useCallback(async (message: string) => {
+    setAutoScroll(true);
     if (!streamPlayer) {
       streamPlayer = new StreamPlayer();
     }
@@ -127,7 +150,10 @@ const NiaInterface = () => {
           display: 'flex',
           flexDirection: 'column',
           marginTop: '30px', 
+          marginBottom: '30px',
         }}
+        ref={scrollRef}
+        onScroll={handleScroll}
       >
         <Introduction display={chatHistory.contents.length === 0} />
         <MessageHistory contents={chatHistory.contents} loading={loading}/>

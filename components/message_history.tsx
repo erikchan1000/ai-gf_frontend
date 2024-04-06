@@ -11,8 +11,8 @@ export const MessageHistory = (props: NewMessageProps) => {
     <div>
       {props.contents.map((content, index) => {
         const errors = content.parts[0].text.match(regex);
-        console.log("error", errors)
         const message = content.parts[0].text.replace(regex, '');
+
         return (
           <div key={index}
             style={{

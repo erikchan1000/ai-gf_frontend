@@ -20,7 +20,6 @@ const NiaInterface = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState<boolean>(true);
-  console.log("Scrolling: ", autoScroll)
 
   let streamPlayer: StreamPlayerType | null = null;
 

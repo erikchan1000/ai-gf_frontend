@@ -6,6 +6,7 @@ const prompt = `You are a support bot for a music company called breaking hits.\
   This is background information on Breaking hits:\n${prompts["information_prompt"]}\n
   If asked about irrelevant information, respond with "I'm sorry, I don't have that information".\n
   This is your personality: ${prompts["personality_prompt"]}\n
+  Please provide responses that are short and concise. Do not go over 3 sentences.\n
 `
 
 
@@ -24,7 +25,10 @@ const model = vertexAI.getGenerativeModel({model: 'gemini-1.0-pro',
   }, {
     category: 'HARM_CATEGORY_HARASSMENT',
     threshold: 'BLOCK_ONLY_HIGH'
-  }]
+  }],
+  generation_config: {
+    max_output_tokens: 150,
+  }
 }
 );
 const chat = model.startChat({});
@@ -76,7 +80,6 @@ export async function POST(request) {
 
     console.log("Result")
     const stream = iteratorToStream(streamIterator(result.stream));
-    
     return new Response(stream, { status: 200 });
   } 
 

@@ -4,6 +4,8 @@ import Image from 'next/image';
 import NeilPicture from '@/public/neil.jpg';
 import LinearProgress from '@mui/material/LinearProgress';
 import NiaPicture from '@/public/Nia.png';
+import Markdown from 'react-markdown';
+import './message_history.scss'
 
 export const MessageHistory = (props: NewMessageProps) => {
   const regex = /\bError[^\n.]*[.?!]/g;
@@ -40,13 +42,17 @@ export const MessageHistory = (props: NewMessageProps) => {
               />
             </div>
             }
-            <p
+            <div
               style={{
                 color: 'white',
                 marginLeft: '40px',
                 opacity: 0.8,
               }}
-            >{message}</p>
+            >
+              <Markdown>
+                {message}
+              </Markdown>
+            </div>
             {errors && errors.length > 0 ?
               <strong
                 style={{

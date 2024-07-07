@@ -1,21 +1,48 @@
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import IconButton from '@mui/material/IconButton';
 import { TextBox } from '@/components/textbox';
 import { sendGeminiMessage, readGeminiMessage } from '@/utils/sendGeminiMessage';
 import { MessageHistoryProps, ContentProps } from '@/components/nia_interface/interface';
 import { MessageHistory } from '@/components/message_history';
 import { sendElevenLabsMessage, readElevenLabsMessage, createSocket } from '@/utils/sendElevenLabsMessage';
-import Aud from './test.json';
 import { StreamPlayer, StreamPlayerType } from '@/utils/audio_queue';
+import Introduction from '@/components/introduction';
 
 const NiaInterface = () => {
   const [response, setResponse] = useState<string>('');
   const [chatHistory, setChatHistory] = useState<MessageHistoryProps>({ contents: [] });
   const [error, setError] = useState<boolean>(false);
-  let streamPlayer: StreamPlayerType;
+  const [activateVoice, setActivateVoice] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [autoScroll, setAutoScroll] = useState<boolean>(true);
+
+  let streamPlayer: StreamPlayerType | null = null;
+
+  useEffect(() => {
+    console.log(scrollRef)
+    if (scrollRef.current && autoScroll) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
+    }
+  }, [chatHistory, autoScroll])
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      if (scrollTop + clientHeight === scrollHeight) {
+        setAutoScroll(true);
+      }
+      else {
+        setAutoScroll(false);
+      }
+    }
+  }
   
+
   //use indexing 0 in parts to retrieve message, subsequent indexes are for context and prompting
   const updateChatHistory = useCallback((message: string, role: "user" | "model") => {
     const newMessage: ContentProps = {
@@ -25,15 +52,21 @@ const NiaInterface = () => {
     setChatHistory({ contents: [...chatHistory.contents, newMessage] });
   }
     , [chatHistory]);
-
+  
+   
   const sendMessage = useCallback(async (message: string) => {
-    streamPlayer = new StreamPlayer();
+    setAutoScroll(true);
+    if (!streamPlayer) {
+      streamPlayer = new StreamPlayer();
+    }
+    setLoading(true);
     updateChatHistory(message, "user");
     try {
       const stream = await sendGeminiMessage(chatHistory, message);
       const tee = stream.tee();
       const reader = readGeminiMessage(tee[0]);
       let newResponse = '';
+      let audioPromise: Promise<void> | null = null;
       const socket: WebSocket = createSocket();
 
       const newMessage: ContentProps = {
@@ -41,8 +74,20 @@ const NiaInterface = () => {
         parts: [{ text: message }],
       };
 
-      const audioStream = await sendElevenLabsMessage(tee[1],socket); 
-      const audioReader = readElevenLabsMessage(audioStream);
+      if (activateVoice) {
+
+        const audioStream = await sendElevenLabsMessage(tee[1],socket);
+        const audioReader = readElevenLabsMessage(audioStream);
+        audioPromise = (async () => {
+        for await (const audio of audioReader) {
+          console.log("Playing Audio")
+          streamPlayer.updateAudioQueue(audio);
+        }
+      })();
+
+      }
+
+      setLoading(false);
 
       const textPromise = (async () => {
         for await (const response of reader) {
@@ -55,17 +100,13 @@ const NiaInterface = () => {
         }
       })();
 
-      const audioPromise = (async () => {
-        for await (const audio of audioReader) {
-          console.log("Playing Audio")
-          //streamPlayer.playAudioChunk(audio);
-          streamPlayer.addBufferArray(audio);
-        }
-      })();
+      
 
       await Promise.all([textPromise, audioPromise]);
-
-      streamPlayer.playBufferArray();
+      
+      if (activateVoice) {
+        streamPlayer.updateAudioQueue('done');
+      }
 
       const updatedResponse: ContentProps = {
         role: "model",
@@ -80,7 +121,7 @@ const NiaInterface = () => {
       setResponse("Error sending message, try again later.");
       setError(true);
     }
-  }, [chatHistory, updateChatHistory]);
+  }, [chatHistory, updateChatHistory, activateVoice]);
 
   return (
     <Box
@@ -93,29 +134,50 @@ const NiaInterface = () => {
         width: '100%',
       }}
     >
-      <Typography variant="h5">Nia Interface</Typography>
+      <Typography variant="h6"
+        sx={{
+          color: 'white',
+          opacity: 0.6,
+          marginRight: 'auto'
+        }}
+      >Nia AI Assistant Beta v0.1</Typography>
       <Box
         flex="1"
         overflow="scroll"
         sx={{
-          border: '1px solid gray',
-          borderRadius: '20px',
-          width: '100%',
-          padding: '10px',
-          margin: '10px',
+          width: '80%',
           display: 'flex',
           flexDirection: 'column',
+          marginTop: '30px', 
+          marginBottom: '30px',
         }}
+        ref={scrollRef}
+        onScroll={handleScroll}
       >
-        <MessageHistory contents={chatHistory.contents} />
+        <Introduction display={chatHistory.contents.length === 0} />
+        <MessageHistory contents={chatHistory.contents} loading={loading}/>
       </Box>
       <Box
         sx={{
           width: '80%',
           position: 'relative',
+          display: 'flex',
         }}
       >
         <TextBox handleMessageSend={sendMessage} />
+        <IconButton onClick={() => setActivateVoice(!activateVoice)}
+          sx={{
+            marginLeft: '10px',
+          }}
+
+        >
+
+          <VolumeUpIcon
+            sx={{
+              color: `${activateVoice ? 'green' : 'red'}`,
+            }}
+          />
+         </IconButton> 
       </Box>
     </Box>
   )

@@ -7,11 +7,13 @@ const prompt = `You are a support bot for a music company called breaking hits.\
   If asked about irrelevant information, respond with "I'm sorry, I don't have that information".\n
   This is your personality: ${prompts["personality_prompt"]}\n
   Please provide responses that are short and concise. Do not go over 3 sentences.\n
+  If you are unsure of a response, respond with "I'm sorry, I don't have that information".\n
+  Answer in the language that the user asks the question in.\n
 `
 
-
 const vertexAI = new VertexAI({project: 'breakinghits-22ab7', location: 'us-central1'});
-const model = vertexAI.getGenerativeModel({model: 'gemini-1.0-pro', 
+
+const model = vertexAI.getGenerativeModel({model: 'gemini-1.5-pro', 
   safety_settings: [{
     category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
     threshold: 'BLOCK_ONLY_HIGH'
@@ -26,14 +28,10 @@ const model = vertexAI.getGenerativeModel({model: 'gemini-1.0-pro',
     category: 'HARM_CATEGORY_HARASSMENT',
     threshold: 'BLOCK_ONLY_HIGH'
   }],
-  generation_config: {
-    max_output_tokens: 150,
-  }
-}
+  systemInstruction: prompt, 
+},
 );
 const chat = model.startChat({});
-await chat.sendMessage(prompt);
-console.log("Reinitializing")
 
 
 async function* streamIterator(stream) {

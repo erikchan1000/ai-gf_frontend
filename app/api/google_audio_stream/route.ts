@@ -33,12 +33,6 @@ export async function POST(request: Request) {
     const result = await model.generateContentStream(req);
     const stream = iteratorToStream(streamIterator(result.stream));
 
-    const response = await fetch('/api/eleven_labs', {
-      method: "POST",
-      body: stream, 
-    })
-
-
     return new Response(stream, { status: 200 });
   }
   catch (error) {

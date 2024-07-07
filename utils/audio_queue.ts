@@ -13,9 +13,10 @@ export class StreamPlayer implements StreamPlayerType {
   private bufferArray: Buffer[];
   private finishedStreaming: boolean;
   private startTime: number;
+  private finishedContext: any;
 
 
-  constructor() {
+  constructor(setContext: any) {
     this.audioContext = new AudioContext()
     this.sourceNode = null;
     this.audioQueue = [];
@@ -23,18 +24,19 @@ export class StreamPlayer implements StreamPlayerType {
     this.finishedStreaming = false;
     this.checkEnded();
     this.startTime = 0;
+    this.finishedContext = setContext;
   }
 
   private async checkEnded() {
     setInterval(() => {
 
       if (this.finishedStreaming && this.audioContext.currentTime - this.startTime > this.sourceNode!.buffer!.duration ) {
-        console.log("Audio context ended");
         this.audioContext.close();
         this.audioContext = new AudioContext();
         this.finishedStreaming = false;
         this.audioQueue = [];
         this.bufferArray = [];
+        this.finishedContext(true);
       }
     }, 1000);
   }
@@ -106,6 +108,4 @@ export class StreamPlayer implements StreamPlayerType {
 
     this.sourceNode = newSourceNode;
   }
-
-  
 }

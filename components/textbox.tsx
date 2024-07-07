@@ -1,11 +1,14 @@
 import React, {useState} from 'react';
-import { TextField } from '@mui/material';
+import { TextField, FormControl, Input, InputLabel, IconButton } from '@mui/material';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
 interface TextBoxProps {
   handleMessageSend: (message: string) => void;
+  activateVoice: () => void;
+  activateVoiceState: boolean;
 }
 
-export const TextBox: React.FC<TextBoxProps> = ({handleMessageSend}) => {
+export const TextBox: React.FC<TextBoxProps> = ({handleMessageSend, activateVoice, activateVoiceState}) => {
   const [inputText, setInputText] = useState<string>('');
   //adjust the height of the text box based on the amount of text
 
@@ -22,16 +25,12 @@ export const TextBox: React.FC<TextBoxProps> = ({handleMessageSend}) => {
   }
   
    return (
-    <form style={{
-        width: '100%'
-    }}
-    >
-      <TextField value={inputText} placeholder="Message"
+      <FormControl 
         variant="outlined"
         sx={{
           borderRadius: '20px',
           width: '100%',
-          backgroundColor: 'rgba(128, 82, 106, 0.8)',
+          backgroundColor: '#1e1f20',
 
           '& .MuiInputBase-input': {
             color: '#ECE6F0',
@@ -43,6 +42,8 @@ export const TextBox: React.FC<TextBoxProps> = ({handleMessageSend}) => {
 
           '& .MuiInputBase-root': {
             borderRadius: '20px',
+            paddingTop: '1.25rem',
+            paddingBottom: '1.25rem',
 
             '&.Mui-focused fieldset': {
               borderColor: '#ECE6F0',
@@ -54,10 +55,46 @@ export const TextBox: React.FC<TextBoxProps> = ({handleMessageSend}) => {
           },
 
         }}
-        onChange={handleChange}
-        onKeyPress={handleKeyPress}
-        multiline
-      />
-    </form>
+      >
+        <Input
+          id="message"
+          multiline
+          rows={1}
+          value={inputText}
+          onChange={handleChange}
+          onKeyPress={handleKeyPress}
+          placeholder="Type a message..."
+          sx={{
+            color: '#ECE6F0',
+            fontSize: '1rem',
+            borderRadius: '20px',
+            borderColor: '#ECE6F0',
+            padding: '1.25rem',
+
+            '& .MuiInputBase-input::placeholder': {
+              opacity: '0.8 !important',
+            }
+          }}
+          disableUnderline
+
+          endAdornment={
+            <IconButton onClick={() => activateVoice()}
+              sx={{
+                color: '#ECE6F0',
+                padding: '0px',
+                marginRight: '10px',
+              }}
+            >
+              <VolumeUpIcon
+                sx={{
+                  color: `${activateVoiceState ? 'green' : 'red'}`,
+                  width: '25px',
+                  height: '100%',
+                }}
+              />
+            </IconButton>
+          }
+        />
+      </FormControl>
   )
 }

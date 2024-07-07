@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { Box, Typography } from '@mui/material';
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import IconButton from '@mui/material/IconButton';
 import { TextBox } from '@/components/textbox';
 import { sendGeminiMessage, readGeminiMessage } from '@/utils/sendGeminiMessage';
 import { MessageHistoryProps, ContentProps } from '@/components/nia_interface/interface';
@@ -11,6 +9,7 @@ import { MessageHistory } from '@/components/message_history';
 import { sendElevenLabsMessage, readElevenLabsMessage, createSocket } from '@/utils/sendElevenLabsMessage';
 import { StreamPlayer, StreamPlayerType } from '@/utils/audio_queue';
 import Introduction from '@/components/introduction';
+import { FinishedContext } from '@/utils/finishedContext';
 
 const NiaInterface = () => {
   const [response, setResponse] = useState<string>('');
@@ -20,8 +19,13 @@ const NiaInterface = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState<boolean>(true);
+  const finishedContext = useContext<any>(FinishedContext);
 
   let streamPlayer: StreamPlayerType | null = null;
+
+  const invertVoice = () => {
+    setActivateVoice(!activateVoice);
+  }
 
   useEffect(() => {
     console.log(scrollRef)
@@ -55,9 +59,11 @@ const NiaInterface = () => {
   
    
   const sendMessage = useCallback(async (message: string) => {
+    finishedContext.setFinished(false);
+
     setAutoScroll(true);
     if (!streamPlayer) {
-      streamPlayer = new StreamPlayer();
+      streamPlayer = new StreamPlayer(finishedContext.setFinished);
     }
     setLoading(true);
     updateChatHistory(message, "user");
@@ -84,6 +90,8 @@ const NiaInterface = () => {
           streamPlayer.updateAudioQueue(audio);
         }
       })();
+
+      console.log("Done")
 
       }
 
@@ -114,6 +122,8 @@ const NiaInterface = () => {
       };
 
       setChatHistory({ contents: [...chatHistory.contents, newMessage, updatedResponse] });
+
+      console.log("Finished Streaming");
 
     }
     catch (error) {
@@ -164,20 +174,10 @@ const NiaInterface = () => {
           display: 'flex',
         }}
       >
-        <TextBox handleMessageSend={sendMessage} />
-        <IconButton onClick={() => setActivateVoice(!activateVoice)}
-          sx={{
-            marginLeft: '10px',
-          }}
-
-        >
-
-          <VolumeUpIcon
-            sx={{
-              color: `${activateVoice ? 'green' : 'red'}`,
-            }}
-          />
-         </IconButton> 
+        <TextBox handleMessageSend={sendMessage}
+          activateVoice={invertVoice}
+          activateVoiceState={activateVoice}
+        />
       </Box>
     </Box>
   )

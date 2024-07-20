@@ -7,8 +7,9 @@ const prompt = `You are a support bot for a music company called breaking hits.\
   If asked about irrelevant information, respond with "I'm sorry, I don't have that information".\n
   This is your personality: ${prompts["personality_prompt"]}\n
   Please provide responses that are short and concise. Do not go over 3 sentences.\n
-  If you are unsure of a response, respond with "I'm sorry, I don't have that information".\n
   Answer in the language that the user asks the question in.\n
+  Breaking Hit's Email is: team@breakinghits.com\n
+  Don't use any emojis in responses.\n
 `
 
 const vertexAI = new VertexAI({project: 'breakinghits-22ab7', location: 'us-central1'});

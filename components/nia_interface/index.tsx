@@ -10,6 +10,7 @@ import { sendElevenLabsMessage, readElevenLabsMessage, createSocket } from '@/ut
 import { StreamPlayer, StreamPlayerType } from '@/utils/audio_queue';
 import Introduction from '@/components/introduction';
 import { FinishedContext } from '@/utils/finishedContext';
+import { VoiceChat } from '@/components/voice_chat';
 
 const NiaInterface = () => {
   const [response, setResponse] = useState<string>('');
@@ -28,7 +29,6 @@ const NiaInterface = () => {
   }
 
   useEffect(() => {
-    console.log(scrollRef)
     if (scrollRef.current && autoScroll) {
       scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
     }
@@ -88,10 +88,9 @@ const NiaInterface = () => {
         for await (const audio of audioReader) {
           console.log("Playing Audio")
           streamPlayer.updateAudioQueue(audio);
-        }
-      })();
+          }
+        })();
 
-      console.log("Done")
 
       }
 
@@ -99,7 +98,6 @@ const NiaInterface = () => {
 
       const textPromise = (async () => {
         for await (const response of reader) {
-          console.log("CHATHISTORY: ", chatHistory);
           newResponse += response;
           setChatHistory({
             contents: [...chatHistory.contents, {role:"user", parts:[{text: message}]}, { role: "model", parts: [{ text: newResponse}] }],
@@ -169,9 +167,13 @@ const NiaInterface = () => {
       </Box>
       <Box
         sx={{
-          width: '80%',
-          position: 'relative',
           display: 'flex',
+          position: "relative",
+          width: '80%',
+
+          '@media (max-width: 600px)': {
+            width: '90%',
+          },
         }}
       >
         <TextBox handleMessageSend={sendMessage}

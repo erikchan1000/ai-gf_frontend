@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import { TextField, FormControl, Input, InputLabel, IconButton } from '@mui/material';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import SendIcon from '@mui/icons-material/Send';
 
 interface TextBoxProps {
   handleMessageSend: (message: string) => void;
@@ -25,6 +26,7 @@ export const TextBox: React.FC<TextBoxProps> = ({handleMessageSend, activateVoic
   }
   
    return (
+    <>
       <FormControl 
         variant="outlined"
         sx={{
@@ -82,12 +84,11 @@ export const TextBox: React.FC<TextBoxProps> = ({handleMessageSend, activateVoic
               sx={{
                 color: '#ECE6F0',
                 padding: '0px',
-                marginRight: '10px',
               }}
             >
               <VolumeUpIcon
                 sx={{
-                  color: `${activateVoiceState ? 'green' : 'red'}`,
+                  color: `${activateVoiceState ? '#469963' : '#c96a63'}`,
                   width: '25px',
                   height: '100%',
                 }}
@@ -96,5 +97,20 @@ export const TextBox: React.FC<TextBoxProps> = ({handleMessageSend, activateVoic
           }
         />
       </FormControl>
+      <IconButton onClick={() => {handleMessageSend(inputText); setInputText('');}}
+        sx={{
+          padding: '0px',
+          marginLeft: '10px',
+        }}
+      >
+        <SendIcon
+          sx={{
+            color: inputText === "" ? '#c96a63' : '#ECE6F0',
+            width: '25px',
+            height: '100%',
+          }}
+        />
+      </IconButton>
+    </>
   )
 }

@@ -48,6 +48,7 @@ export const MessageHistory = (props: NewMessageProps) => {
                 marginLeft: '40px',
                 opacity: 0.8,
               }}
+              className="text-lg"
             >
               <Markdown>
                 {message}

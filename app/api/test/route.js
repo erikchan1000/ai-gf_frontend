@@ -10,11 +10,12 @@ const prompt = `You are a support bot for a music company called breaking hits.\
   Answer in the language that the user asks the question in.\n
   Breaking Hit's Email is: team@breakinghits.com\n
   Don't use any emojis in responses.\n
+  Here's additional Context about artists you have information on:\m
 `
 
 const vertexAI = new VertexAI({project: 'breakinghits-22ab7', location: 'us-central1'});
 
-const model = vertexAI.getGenerativeModel({model: 'gemini-1.5-pro', 
+let model = vertexAI.getGenerativeModel({model: 'gemini-1.5-pro', 
   safety_settings: [{
     category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
     threshold: 'BLOCK_ONLY_HIGH'
@@ -32,8 +33,43 @@ const model = vertexAI.getGenerativeModel({model: 'gemini-1.5-pro',
   systemInstruction: prompt, 
 },
 );
-const chat = model.startChat({});
+let chat = model.startChat({});
 
+export const updateModelAndChat = async (newPrompt) => {
+  try {
+  model = await vertexAI.getGenerativeModel({model: 'gemini-1.5-pro',
+    safety_settings: [{
+      category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+      threshold: 'BLOCK_ONLY_HIGH'
+    }, {
+      category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+      threshold: 'BLOCK_ONLY_HIGH'
+
+    }, {
+      category: 'HARM_CATEGORY_HATE_SPEECH',
+      threshold: 'BLOCK_ONLY_HIGH'
+    }, {
+      category: 'HARM_CATEGORY_HARASSMENT',
+      threshold: 'BLOCK_ONLY_HIGH'
+    }],
+    systemInstruction: prompt + newPrompt, 
+  },
+  );
+  chat = await model.startChat({});
+  return new Promise( 
+    (resolve) => {
+      resolve("model updated");
+    }
+  )
+  }
+  catch (error) {
+    return new Promise(
+      (reject) => {
+        reject(error);
+      }
+    )
+  }
+}
 
 async function* streamIterator(stream) {
 

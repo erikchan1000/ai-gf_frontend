@@ -1,8 +1,8 @@
 'use client'
 
 import * as React from 'react';
-import { MdFilledButtonReact, MdOutlinedTextFieldReact, MdCircularProgressReact } from '@/components/mui3_components';
 import Introduction from '@/components/introduction';
+import { CubismFramework, Option } from '@framework/live2dcubismframework';
 
 export default function Page() {
   return (

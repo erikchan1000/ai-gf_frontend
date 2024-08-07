@@ -138,7 +138,7 @@ const NiaInterface = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (voiceContext === "nia") {
+      if (voiceContext === "ali") {
         console.log("Fetching Data")
         const json = await fetch("/api/getJson")
         const data = await json.json()
@@ -196,7 +196,7 @@ const NiaInterface = () => {
             opacity: 0.6,
             marginRight: 'auto'
           }}
-        >Nia AI Assistant Beta v0.1</Typography>
+        >Nia AI Assistant Beta v0.2</Typography>
         <FormControl
           sx={{
             color: 'white',
@@ -234,7 +234,7 @@ const NiaInterface = () => {
             MenuProps={{
               PaperProps: {
               sx: {
-                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                backgroundColor: 'rgba(0, 0, 0, 1)',
                 '& .MuiMenuItem-root': {
                   color: 'white',
                 },
@@ -254,12 +254,12 @@ const NiaInterface = () => {
                 backgroundColor: 'rgba(0, 0, 0, 0.3)',
               }}
             >None</MenuItem>
-            <MenuItem value={"nia"}
+            <MenuItem value={"ali"}
               sx={{
                 color: 'white',
                 backgroundColor: 'rgba(0, 0, 0, 0.3)',
               }}
-            >Nia</MenuItem>
+            >Ali</MenuItem>
           </Select>
         </FormControl>
       </div>

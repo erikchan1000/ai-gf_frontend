@@ -1,4 +1,3 @@
-
 import prompts from '@/utils/prompt.json';
 const { VertexAI, HarmCategory, HarmBlockThreshold } = require('@google-cloud/vertexai');
 
@@ -37,7 +36,7 @@ let chat = model.startChat({});
 
 export const updateModelAndChat = async (newPrompt) => {
   try {
-  model = await vertexAI.getGenerativeModel({model: 'gemini-1.5-pro',
+  model = vertexAI.getGenerativeModel({model: 'gemini-1.5-pro',
     safety_settings: [{
       category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
       threshold: 'BLOCK_ONLY_HIGH'
@@ -55,7 +54,7 @@ export const updateModelAndChat = async (newPrompt) => {
     systemInstruction: prompt + newPrompt, 
   },
   );
-  chat = await model.startChat({});
+  chat = model.startChat({});
   return new Promise( 
     (resolve) => {
       resolve("model updated");

@@ -89,7 +89,6 @@ const NiaInterface = () => {
         const audioReader = readElevenLabsMessage(audioStream);
         audioPromise = (async () => {
         for await (const audio of audioReader) {
-          console.log("Playing Audio")
           streamPlayer.updateAudioQueue(audio);
           }
         })();
@@ -124,25 +123,26 @@ const NiaInterface = () => {
 
       setChatHistory({ contents: [...chatHistory.contents, newMessage, updatedResponse] });
 
-      console.log("Finished Streaming");
-
     }
     catch (error) {
-      console.error("Error sending Gemini Message: ", error);
       setResponse("Error sending message, try again later.");
       setError(true);
     }
   }, [chatHistory, updateChatHistory, activateVoice]);
 
-  console.log("Voice Context: ", voiceContext);
-
   useEffect(() => {
     const fetchData = async () => {
-      if (voiceContext === "ali") {
-        console.log("Fetching Data")
-        const json = await fetch("/api/getJson")
+      if (voiceContext !== "") {
+        const json = await fetch("/api/getJson",{
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: voiceContext
+          })
+        })
         const data = await json.json()
-        console.log("Data: ", data)
         setPrompt(data)
       }
       else {
@@ -153,12 +153,9 @@ const NiaInterface = () => {
   }
   , [voiceContext]);
 
-  console.log("Prompt: ", prompt)
 
   useEffect(() => {
     const updateModelData = async () => {
-      console.log("Updating")
-      console.log("Response: ", response)
       const json = await fetch("/api/test/update", {
         method: "POST",
         headers: {
@@ -253,13 +250,19 @@ const NiaInterface = () => {
                 color: 'white',
                 backgroundColor: 'rgba(0, 0, 0, 0.3)',
               }}
-            >None</MenuItem>
+            >BH</MenuItem>
             <MenuItem value={"ali"}
               sx={{
                 color: 'white',
                 backgroundColor: 'rgba(0, 0, 0, 0.3)',
               }}
             >Ali</MenuItem>
+            <MenuItem value={"garth"}
+              sx={{
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              }}
+            >Garth</MenuItem>
           </Select>
         </FormControl>
       </div>

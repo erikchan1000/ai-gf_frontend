@@ -23,6 +23,7 @@ export default function RootLayout({
           backgroundColor: '#131314',
         }}
       >
+        <script src="../Core/live2dcubismcore.min.js"></script>
         <AppRouterCacheProvider>
           <StyledComponentsRegistry>
             {children}

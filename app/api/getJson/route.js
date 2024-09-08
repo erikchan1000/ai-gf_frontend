@@ -11,6 +11,8 @@ export async function POST(req) {
     case 'garth':
       return new Response(JSON.stringify(Garth), { status: 200 });
     default:
-      return new Response('No model provided', { status: 400 });
+      return new Response(JSON.stringify({
+        prompt: ""
+      }), { status: 200 });
   }
 }

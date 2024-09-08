@@ -164,7 +164,12 @@ const NiaInterface = () => {
         body: JSON.stringify(prompt)
       })
     }
-    updateModelData()
+    try {
+      updateModelData()
+    }
+    catch (error) {
+      console.log(error)
+    }
   }, [prompt])
 
   
@@ -193,7 +198,7 @@ const NiaInterface = () => {
             opacity: 0.6,
             marginRight: 'auto'
           }}
-        >Nia AI Assistant Beta v0.2</Typography>
+        >Nia AI Assistant Beta v0.1</Typography>
         <FormControl
           sx={{
             color: 'white',

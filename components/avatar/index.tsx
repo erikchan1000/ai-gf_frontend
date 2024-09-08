@@ -1,25 +1,25 @@
-import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { CubismFramework } from '@framework/live2dcubismframework';
+import path from 'path';
+import fs from 'fs';
+import { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 
-export const Avatar = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [gl, setGl] = useState<WebGLRenderingContext | null>(null);
+export async function getServerSideProps() {
+  const Module = await import ("@/Core/live2dcubismcore.min.js");
+  const Live2DCubismCore = Module.default();
+  
+  return {
+    props: {
+      test: Live2DCubismCore,
+    }
+  }
+}
 
-  useLayoutEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const gl = canvas.getContext('webgl');
-    if (!gl) return;
-
-    setGl(gl);
-    console.log('gl', gl);
-
-  }, []);   
-
+export default async function Page() {
+  const test = await getServerSideProps();
+  console.log(test);
   return (
-      <div>
-      <canvas ref={canvasRef}/>
+    <div>
+      <h1>Live2D Cubism Framework</h1>
     </div>
-  )
+  );
 }

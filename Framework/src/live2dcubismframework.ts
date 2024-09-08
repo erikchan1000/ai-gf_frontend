@@ -4,7 +4,6 @@
  * Use of this source code is governed by the Live2D Open Software license
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
- 'use server'
 
 import { CubismIdManager } from './id/cubismidmanager';
 import { CubismRenderer } from './rendering/cubismrenderer';
@@ -14,7 +13,7 @@ import {
   CubismLogWarning
 } from './utils/cubismdebug';
 import { Value } from './utils/cubismjson';
-import Live2DCubismCore from './live2dcubismcore';
+
 
 export function strtod(s: string, endPtr: string[]): number {
   let index = 0;
@@ -99,6 +98,8 @@ export class CubismFramework {
 
     // Live2D Cubism Coreバージョン情報を表示
     if (s_isStarted) {
+      console.log("Live2DCubismCore.Version", Object.keys(Live2DCubismCore));
+
       const version: number = Live2DCubismCore.Version.csmGetVersion();
       const major: number = (version & 0xff000000) >> 24;
       const minor: number = (version & 0x00ff0000) >> 16;

@@ -11,17 +11,16 @@
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "noImplicitAny": true,
-    "useUnknownInCatchVariables": true
+    "useUnknownInCatchVariables": true,
+    "typeRoots": ["./types"]
   },
   "include": [
     "src/**/*.ts",
-    "../Core/*.ts"
+    "../Core/*.ts",
+    "types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-  ],
-  "paths": {
-    "@core/*": ["../Core/*"]
-  }
+    "dist"
+  ]
 }

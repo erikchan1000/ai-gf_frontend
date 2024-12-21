@@ -49,6 +49,9 @@ function ReactLive2d(props) {
         printNow.style.display = 'none';
     }
 
+    const [ live2dManager, setLive2dManager ] = useState(undefined)
+    const [ motionManager, setMotionManager ] = useState(undefined)
+    const [ motions, setMotions ] = useState([])
     useEffect(() => {
         props.ModelList ? LAppDefine.lappdefineSet.setModelDir(props.ModelList) : LAppDefine.lappdefineSet.setModelDir([])
         props.TouchBody ? LAppDefine.lappdefineSet.setHitBody(props.TouchBody) : LAppDefine.lappdefineSet.setHitBody([])
@@ -64,8 +67,10 @@ function ReactLive2d(props) {
 
           LAppDelegate.getInstance().run();
         }
+        setLive2dManager(LAppLive2DManager.getInstance());
 
     }, [LAppDelegate]);
+
 
     useEffect(() =>{
         if(props.release==true){
@@ -73,7 +78,40 @@ function ReactLive2d(props) {
         }
     }, [props.release])
 
+    useEffect(() => {
+      setMotionManager(live2dManager?.getModel(0).getMotionManager())
+      setMotions(live2dManager?.getModel(0).getMotions()?._keyValues)
+    }, [live2dManager])
+
+    console.log("Motions: ", motions)
+
+    const getModels = () => {
+      console.log("First model: ", live2dManager.getModel(0))
+    }
+
+    const getAllModels = () => {
+        console.log("All models: ", live2dManager.getAllModels())
+    }
+
+    const nextMotion = () => {
+      const model = live2dManager.getModel(0);
+      model.startMotion("Mail", 0, 3);
+    }
+
+    console.log("Motion Manager: ", motionManager)
+    console.log("Live2d manager: ", live2dManager)
+
+
+
     return (
+    <div
+      style= {{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        maxWidth: '100vw',
+      }}
+    >
       <div
         style={{
           width: "100%",
@@ -81,6 +119,34 @@ function ReactLive2d(props) {
         className="live2d-container"
       >
       </div>
+      <button
+        style={{
+          backgroundColor: 'blue',
+          color: 'white',
+          width: '100px',
+          margin: 'auto'
+        }}
+        onClick={() => {
+          getModels()
+          getAllModels()
+        }}
+      >
+        Test
+      </button>
+      <button
+        style={{
+          backgroundColor: 'blue',
+          color: 'white',
+          width: '100px',
+          margin: 'auto'
+        }}
+        onClick={() => {
+          nextMotion()
+        }}
+        >
+          Next Motion
+      </button>
+    </div>
     )
 }
 

@@ -288,7 +288,7 @@ export abstract class ACubismMotion {
    * @param onFinishedMotionHandler モーション再生終了コールバック関数
    */
   public setFinishedMotionHandler = (
-    onFinishedMotionHandler: FinishedMotionCallback
+    onFinishedMotionHandler: FinishedMotionCallback | undefined
   ) => (this._onFinishedMotion = onFinishedMotionHandler);
 
   /**

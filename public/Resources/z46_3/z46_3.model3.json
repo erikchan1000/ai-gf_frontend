@@ -1,0 +1,69 @@
+
+{
+	"Version": 4,
+	"FileReferences": {
+		"Moc": "z46_3.moc3",
+		"Textures": [
+			"textures/texture_00.png"
+		],
+		"Physics": "z46_3.physics3.json",
+		"Motions": {
+      "TouchHead": [{
+          "File": "motions/touch_head.motion3.json"
+        }],
+        "Main2": [{
+          "File": "motions/main_2.motion3.json"
+        }],
+        "Mail": [{
+          "File": "motions/mail.motion3.json"
+        }],
+        "Main1": [{
+          "File": "motions/main_1.motion3.json"
+        }],
+        "Home": [{
+          "File": "motions/home.motion3.json"
+        }],
+        "Wedding": [{
+          "File": "motions/wedding.motion3.json"
+        }],
+        "TouchSpecial": [{
+          "File": "motions/touch_special.motion3.json"
+        }],
+        "TouchBody": [{
+          "File": "motions/touch_body.motion3.json"
+        }],
+        "Complete": [{
+          "File": "motions/complete.motion3.json"
+        }],
+        "Login": [{
+          "File": "motions/login.motion3.json"
+        }],
+        "Mission": [{
+          "File": "motions/mission.motion3.json"
+        }],
+        "Effect": [{
+          "File": "motions/effect.motion3.json"
+        }],
+        "Main3": [{
+          "File": "motions/main_3.motion3.json"
+        }],
+        "MissionComplete": [{
+          "File": "motions/mission_complete.motion3.json"
+        }],
+        "Idle": [{
+          "File": "motions/idle.motion3.json"
+        }]
+      }
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": [
+				"ParamMouthOpenY"
+			]
+		}
+	],
+	"HitAreas": []
+}
+

@@ -145,11 +145,13 @@ export class LAppModel extends CubismUserModel {
 
     // Expression
     const loadCubismExpression = (): void => {
+      console.log("CubismExpression", this._modelSetting.getExpressionCount());
       if (this._modelSetting.getExpressionCount() > 0) {
         const count: number = this._modelSetting.getExpressionCount();
-
+        console.log("Expression Count: ", count);
         for (let i = 0; i < count; i++) {
           const expressionName = this._modelSetting.getExpressionName(i);
+          console.log("Expression: ", expressionName);
           const expressionFileName =
             this._modelSetting.getExpressionFileName(i);
 
@@ -168,7 +170,7 @@ export class LAppModel extends CubismUserModel {
             .then(arrayBuffer => {
               const motion: ACubismMotion = this.loadExpression(
                 arrayBuffer,
-                arrayBuffer.byteLength,
+                arrayBuffer?.byteLength,
                 expressionName
               );
 
@@ -403,10 +405,12 @@ export class LAppModel extends CubismUserModel {
       const group: string[] = [];
 
       const motionGroupCount: number = this._modelSetting.getMotionGroupCount();
+      console.log("Motion Group Count: ", motionGroupCount);
 
       // モーションの総数を求める
       for (let i = 0; i < motionGroupCount; i++) {
         group[i] = this._modelSetting.getMotionGroupName(i);
+        console.log("Motion Group Name: ", group[i]);
         this._allMotionCount += this._modelSetting.getMotionCount(group[i]);
       }
 
@@ -607,12 +611,14 @@ export class LAppModel extends CubismUserModel {
       }
       return InvalidMotionQueueEntryHandleValue;
     }
-
+    console.log("Start Motion: ", group, no, priority);
     const motionFileName = this._modelSetting.getMotionFileName(group, no);
 
     // ex) idle_0
-    const name = `${group}_${no}`;
+    let name = `${group}_${no}`;
+    console.log("Name: ", name);
     let motion: CubismMotion = this._motions.getValue(name) as CubismMotion;
+    console.log("Motion: ", motion, this._motions);
     let autoDelete = false;
 
     if (motion == null) {
@@ -628,12 +634,17 @@ export class LAppModel extends CubismUserModel {
           }
         })
         .then(arrayBuffer => {
-          motion = this.loadMotion(
-            arrayBuffer,
-            arrayBuffer.byteLength,
-            null,
-            onFinishedMotionHandler
-          );
+          try {
+            motion = this.loadMotion(
+              arrayBuffer,
+              arrayBuffer.byteLength,
+              null,
+              onFinishedMotionHandler
+            );
+          }
+          catch (e) {
+            return null;
+          }
 
           if (motion == null) {
             return;
@@ -671,6 +682,7 @@ export class LAppModel extends CubismUserModel {
     if (this._debugMode) {
       LAppPal.printMessage(`[APP]start motion: [${group}_${no}`);
     }
+    console.log("Start Motion: ", motion, autoDelete, priority);
     return this._motionManager.startMotionPriority(
       motion,
       autoDelete,
@@ -808,11 +820,18 @@ export class LAppModel extends CubismUserModel {
           }
         })
         .then(arrayBuffer => {
-          const tmpMotion: CubismMotion = this.loadMotion(
-            arrayBuffer,
-            arrayBuffer.byteLength,
-            name
-          );
+          let tmpMotion: CubismMotion = null as any;
+          try {
+            tmpMotion = this.loadMotion(
+              arrayBuffer,
+              arrayBuffer.byteLength,
+              name
+            );
+          }
+          catch (e) {
+            console.error(e);
+            return null;
+          }
 
           if (tmpMotion != null) {
             let fadeTime = this._modelSetting.getMotionFadeInTimeValue(
@@ -902,6 +921,10 @@ export class LAppModel extends CubismUserModel {
     }
   }
 
+  public getMotions(): csmMap<string, ACubismMotion> {
+    return this._motions;
+  }
+
   public async hasMocConsistencyFromFile() {
     CSM_ASSERT(this._modelSetting.getModelFileName().localeCompare(``));
 
@@ -945,22 +968,22 @@ export class LAppModel extends CubismUserModel {
     this._hitArea = new csmVector<csmRect>();
     this._userArea = new csmVector<csmRect>();
 
-    this._idParamAngleX = CubismFramework.getIdManager().getId(
+    this._idParamAngleX = CubismFramework.getIdManager()?.getId(
       CubismDefaultParameterId.ParamAngleX
     );
-    this._idParamAngleY = CubismFramework.getIdManager().getId(
+    this._idParamAngleY = CubismFramework.getIdManager()?.getId(
       CubismDefaultParameterId.ParamAngleY
     );
-    this._idParamAngleZ = CubismFramework.getIdManager().getId(
+    this._idParamAngleZ = CubismFramework.getIdManager()?.getId(
       CubismDefaultParameterId.ParamAngleZ
     );
-    this._idParamEyeBallX = CubismFramework.getIdManager().getId(
+    this._idParamEyeBallX = CubismFramework.getIdManager()?.getId(
       CubismDefaultParameterId.ParamEyeBallX
     );
-    this._idParamEyeBallY = CubismFramework.getIdManager().getId(
+    this._idParamEyeBallY = CubismFramework.getIdManager()?.getId(
       CubismDefaultParameterId.ParamEyeBallY
     );
-    this._idParamBodyAngleX = CubismFramework.getIdManager().getId(
+    this._idParamBodyAngleX = CubismFramework.getIdManager()?.getId(
       CubismDefaultParameterId.ParamBodyAngleX
     );
 

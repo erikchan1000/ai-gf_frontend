@@ -16,11 +16,14 @@ const Introduction: React.FC<IntroductionProps> = ({display}) => {
     >
 
       <div className="reveal-mask">
-        <h1
+        <span
           className="introduction-header"
-        >Hello, Neil</h1>
+        >Welcome to Nia</span>
+
       </div>
-      <h1 className="subheader">Welcome to Nia</h1>
+      <h2 className="subheader-2"> 
+        Neural Interactive Assistant
+      </h2>
     </div>
   );
 }

@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { Box, Typography } from '@mui/material';
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import IconButton from '@mui/material/IconButton';
 import { TextBox } from '@/components/textbox';
 import { sendGeminiMessage, readGeminiMessage } from '@/utils/sendGeminiMessage';
 import { MessageHistoryProps, ContentProps } from '@/components/nia_interface/interface';
@@ -11,8 +9,11 @@ import { MessageHistory } from '@/components/message_history';
 import { sendElevenLabsMessage, readElevenLabsMessage, createSocket } from '@/utils/sendElevenLabsMessage';
 import { StreamPlayer, StreamPlayerType } from '@/utils/audio_queue';
 import Introduction from '@/components/introduction';
+import { FinishedContext } from '@/utils/finishedContext';
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 const NiaInterface = () => {
+
   const [response, setResponse] = useState<string>('');
   const [chatHistory, setChatHistory] = useState<MessageHistoryProps>({ contents: [] });
   const [error, setError] = useState<boolean>(false);
@@ -20,11 +21,17 @@ const NiaInterface = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState<boolean>(true);
+  const finishedContext = useContext<any>(FinishedContext);
+  const [ voiceContext, setVoiceContext ] = useState<string>("none")
+  const [ prompt, setPrompt ] = useState<string>("")
 
   let streamPlayer: StreamPlayerType | null = null;
 
+  const invertVoice = () => {
+    setActivateVoice(!activateVoice);
+  }
+
   useEffect(() => {
-    console.log(scrollRef)
     if (scrollRef.current && autoScroll) {
       scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
     }
@@ -55,9 +62,11 @@ const NiaInterface = () => {
   
    
   const sendMessage = useCallback(async (message: string) => {
+    finishedContext.setFinished(false);
+
     setAutoScroll(true);
     if (!streamPlayer) {
-      streamPlayer = new StreamPlayer();
+      streamPlayer = new StreamPlayer(finishedContext.setFinished);
     }
     setLoading(true);
     updateChatHistory(message, "user");
@@ -80,10 +89,10 @@ const NiaInterface = () => {
         const audioReader = readElevenLabsMessage(audioStream);
         audioPromise = (async () => {
         for await (const audio of audioReader) {
-          console.log("Playing Audio")
           streamPlayer.updateAudioQueue(audio);
-        }
-      })();
+          }
+        })();
+
 
       }
 
@@ -91,7 +100,6 @@ const NiaInterface = () => {
 
       const textPromise = (async () => {
         for await (const response of reader) {
-          console.log("CHATHISTORY: ", chatHistory);
           newResponse += response;
           setChatHistory({
             contents: [...chatHistory.contents, {role:"user", parts:[{text: message}]}, { role: "model", parts: [{ text: newResponse}] }],
@@ -117,11 +125,55 @@ const NiaInterface = () => {
 
     }
     catch (error) {
-      console.error("Error sending Gemini Message: ", error);
       setResponse("Error sending message, try again later.");
       setError(true);
     }
   }, [chatHistory, updateChatHistory, activateVoice]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (voiceContext !== "") {
+        const json = await fetch("/api/getJson",{
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: voiceContext
+          })
+        })
+        const data = await json.json()
+        setPrompt(data)
+      }
+      else {
+        setPrompt("")
+      } 
+    }
+    fetchData()  
+  }
+  , [voiceContext]);
+
+
+  useEffect(() => {
+    const updateModelData = async () => {
+      const json = await fetch("/api/test/update", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(prompt)
+      })
+    }
+    try {
+      updateModelData()
+    }
+    catch (error) {
+      console.log(error)
+    }
+  }, [prompt])
+
+  
+  
 
   return (
     <Box
@@ -134,13 +186,91 @@ const NiaInterface = () => {
         width: '100%',
       }}
     >
-      <Typography variant="h6"
-        sx={{
-          color: 'white',
-          opacity: 0.6,
-          marginRight: 'auto'
+      <div
+        style={{
+          width: '100%',
+          display: 'inline-flex'
         }}
-      >Nia AI Assistant Beta v0.1</Typography>
+      >
+        <Typography variant="h6"
+          sx={{
+            color: 'white',
+            opacity: 0.6,
+            marginRight: 'auto'
+          }}
+        >Nia AI Assistant Beta v0.1</Typography>
+        <FormControl
+          sx={{
+            color: 'white',
+            opacity: 0.6,
+            height: '100%',
+            width: '150px',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          }}
+          variant="filled"
+        >
+          <InputLabel id="voice-context"
+            sx={{
+              color: 'white',
+              opacity: 1,
+            }}
+          >Voice Context</InputLabel>
+          <Select
+            labelId="voice-context"
+            id="voice-context"
+            value={voiceContext}
+            onChange={(e) => setVoiceContext(e.target.value)}
+            sx={{
+              color: 'white',
+              opacity: 1,
+              '&:before': {
+                borderColor: 'gray',
+              },
+              '&:after': {
+                borderColor: 'gray',
+              },
+              '.MuiSelect-icon': {
+                color: 'white',
+              },
+            }}
+            MenuProps={{
+              PaperProps: {
+              sx: {
+                backgroundColor: 'rgba(0, 0, 0, 1)',
+                '& .MuiMenuItem-root': {
+                  color: 'white',
+                },
+                '& .MuiMenuItem-root.Mui-selected': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+                '& .MuiMenuItem-root:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                },
+              },
+            },
+        }}
+          >
+            <MenuItem value={"none"}
+              sx={{
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              }}
+            >BH</MenuItem>
+            <MenuItem value={"ali"}
+              sx={{
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              }}
+            >Ali</MenuItem>
+            <MenuItem value={"garth"}
+              sx={{
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              }}
+            >Garth</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
       <Box
         flex="1"
         overflow="scroll"
@@ -159,25 +289,19 @@ const NiaInterface = () => {
       </Box>
       <Box
         sx={{
-          width: '80%',
-          position: 'relative',
           display: 'flex',
+          position: "relative",
+          width: '80%',
+
+          '@media (max-width: 600px)': {
+            width: '90%',
+          },
         }}
       >
-        <TextBox handleMessageSend={sendMessage} />
-        <IconButton onClick={() => setActivateVoice(!activateVoice)}
-          sx={{
-            marginLeft: '10px',
-          }}
-
-        >
-
-          <VolumeUpIcon
-            sx={{
-              color: `${activateVoice ? 'green' : 'red'}`,
-            }}
-          />
-         </IconButton> 
+        <TextBox handleMessageSend={sendMessage}
+          activateVoice={invertVoice}
+          activateVoiceState={activateVoice}
+        />
       </Box>
     </Box>
   )

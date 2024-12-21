@@ -99,7 +99,7 @@ export class csmMap<_KeyT, _ValT> {
    * @param key 添字から特定されるValue値
    * @param value 代入するValue値
    */
-  public setValue(key: _KeyT, value: _ValT | null): void {
+  public setValue(key: _KeyT, value: _ValT): void {
     let found = -1;
 
     for (let i = 0; i < this._size; i++) {

@@ -38,7 +38,7 @@ export class csmVector<T> {
    * @param index 要素をセットするインデックス
    * @param value セットする要素
    */
-  public set(index: number, value: T | null): void {
+  public set(index: number, value: T): void {
     this._ptr[index] = value;
   }
 

@@ -14,7 +14,7 @@ import { canvas } from './lappglmanager';
 import { LAppModel } from './lappmodel';
 import { LAppPal } from './lapppal';
 
-export let s_instance: LAppLive2DManager | null | undefined = null;
+export let s_instance: LAppLive2DManager = null;
 
 /**
  * サンプルアプリケーションにおいてCubismModelを管理するクラス
@@ -46,21 +46,13 @@ export class LAppLive2DManager {
     s_instance = null;
   }
 
-  public getAllModels(): csmVector<LAppModel> | undefined {
-    return this._models;
-  }
-
   /**
    * 現在のシーンで保持しているモデルを返す。
    *
    * @param no モデルリストのインデックス値
    * @return モデルのインスタンスを返す。インデックス値が範囲外の場合はNULLを返す。
    */
-  public getModel(no: number): LAppModel | null {
-    if (this._models == null) {
-      return null;
-    }
-
+  public getModel(no: number): LAppModel {
     if (no < this._models.getSize()) {
       return this._models.at(no);
     }
@@ -72,10 +64,6 @@ export class LAppLive2DManager {
    * 現在のシーンで保持しているすべてのモデルを解放する
    */
   public releaseAllModel(): void {
-    if (this._models == null) {
-      return;
-    }
-
     for (let i = 0; i < this._models.getSize(); i++) {
       this._models.at(i).release();
       this._models.set(i, null);
@@ -91,12 +79,8 @@ export class LAppLive2DManager {
    * @param y 画面のY座標
    */
   public onDrag(x: number, y: number): void {
-    if (this._models == null) {
-      return;
-    }
-
     for (let i = 0; i < this._models.getSize(); i++) {
-      const model: LAppModel | null = this.getModel(i);
+      const model: LAppModel = this.getModel(i);
 
       if (model) {
         model.setDragging(x, y);
@@ -117,18 +101,14 @@ export class LAppLive2DManager {
       );
     }
 
-    if (this._models == null) {
-      return;
-    }
-
     for (let i = 0; i < this._models.getSize(); i++) {
-      if (this._models?.at(i).hitTest(LAppDefine.HitAreaNameHead, x, y)) {
+      if (this._models.at(i).hitTest(LAppDefine.HitAreaNameHead, x, y)) {
         if (LAppDefine.DebugLogEnable) {
           LAppPal.printMessage(
             `[APP]hit area: [${LAppDefine.HitAreaNameHead}]`
           );
         }
-        this._models?.at(i).setRandomExpression();
+        this._models.at(i).setRandomExpression();
       } else if (this._models.at(i).hitTest(LAppDefine.HitAreaNameBody, x, y)) {
         if (LAppDefine.DebugLogEnable) {
           LAppPal.printMessage(
@@ -136,7 +116,7 @@ export class LAppLive2DManager {
           );
         }
         this._models
-          ?.at(i)
+          .at(i)
           .startRandomMotion(
             LAppDefine.MotionGroupTapBody,
             LAppDefine.PriorityNormal,
@@ -151,21 +131,13 @@ export class LAppLive2DManager {
    * モデルの更新処理及び描画処理を行う
    */
   public onUpdate(): void {
-    if ( !canvas || this._models == null) {
-      return;
-    }
-
     const { width, height } = canvas;
 
-    const modelCount: number = this._models?.getSize();
+    const modelCount: number = this._models.getSize();
 
     for (let i = 0; i < modelCount; ++i) {
       const projection: CubismMatrix44 = new CubismMatrix44();
-      const model: LAppModel | null = this.getModel(i);
-
-      if (model == null) {
-        continue;
-      }
+      const model: LAppModel = this.getModel(i);
 
       if (model.getModel()) {
         if (model.getModel().getCanvasWidth() > 1.0 && width < height) {
@@ -215,10 +187,8 @@ export class LAppLive2DManager {
     modelJsonName += '.model3.json';
 
     this.releaseAllModel();
-    this._models?.pushBack(new LAppModel());
-    console.log("modelPath: ", modelPath);
-    console.log("modelJsonName: ", modelJsonName);
-    this._models?.at(0).loadAssets(modelPath, modelJsonName);
+    this._models.pushBack(new LAppModel());
+    this._models.at(0).loadAssets(modelPath, modelJsonName);
   }
 
   public setViewMatrix(m: CubismMatrix44) {
@@ -238,7 +208,7 @@ export class LAppLive2DManager {
   }
 
   _viewMatrix: CubismMatrix44; // モデル描画に用いるview行列
-  _models?: csmVector<LAppModel>; // モデルインスタンスのコンテナ
+  _models: csmVector<LAppModel>; // モデルインスタンスのコンテナ
   _sceneIndex: number; // 表示するシーンのインデックス値
   // モーション再生終了のコールバック関数
   _finishedMotion = (self: ACubismMotion): void => {

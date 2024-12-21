@@ -25,16 +25,12 @@ export class LAppTextureManager {
    * 解放する。
    */
   public release(): void {
-    if (!this._textures) {
-      return;
-    }
-
     for (
       let ite: iterator<TextureInfo> = this._textures.begin();
       ite.notEqual(this._textures.end());
       ite.preIncrement()
     ) {
-      gl?.deleteTexture(ite.ptr().id);
+      gl.deleteTexture(ite.ptr().id);
     }
     this._textures = null;
   }
@@ -52,10 +48,6 @@ export class LAppTextureManager {
     callback: (textureInfo: TextureInfo) => void
   ): void {
     // search loaded texture already
-    if ( !this._textures) {
-      return;
-    }
-
     for (
       let ite: iterator<TextureInfo> = this._textures.begin();
       ite.notEqual(this._textures.end());
@@ -85,11 +77,7 @@ export class LAppTextureManager {
       'load',
       (): void => {
         // テクスチャオブジェクトの作成
-        if (!gl  || ! this._textures) {
-          return;
-        }
-
-        const tex: WebGLTexture | null = gl.createTexture();
+        const tex: WebGLTexture = gl.createTexture();
 
         // テクスチャを選択
         gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -128,7 +116,7 @@ export class LAppTextureManager {
           textureInfo.fileName = fileName;
           textureInfo.width = img.width;
           textureInfo.height = img.height;
-          textureInfo.id = tex as WebGLTexture;
+          textureInfo.id = tex;
           textureInfo.img = img;
           textureInfo.usePremultply = usePremultiply;
           this._textures.pushBack(textureInfo);
@@ -147,10 +135,6 @@ export class LAppTextureManager {
    * 配列に存在する画像全てを解放する。
    */
   public releaseTextures(): void {
-    if (!this._textures) {
-      return;
-    }
-
     for (let i = 0; i < this._textures.getSize(); i++) {
       this._textures.set(i, null);
     }
@@ -165,10 +149,6 @@ export class LAppTextureManager {
    * @param texture 解放するテクスチャ
    */
   public releaseTextureByTexture(texture: WebGLTexture): void {
-    if (!this._textures) {
-      return;
-    }
-
     for (let i = 0; i < this._textures.getSize(); i++) {
       if (this._textures.at(i).id != texture) {
         continue;
@@ -187,10 +167,6 @@ export class LAppTextureManager {
    * @param fileName 解放する画像ファイルパス名
    */
   public releaseTextureByFilePath(fileName: string): void {
-    if (!this._textures) {
-      return;
-    }
-
     for (let i = 0; i < this._textures.getSize(); i++) {
       if (this._textures.at(i).fileName == fileName) {
         this._textures.set(i, null);
@@ -200,7 +176,7 @@ export class LAppTextureManager {
     }
   }
 
-  _textures: csmVector<TextureInfo> | null;
+  _textures: csmVector<TextureInfo>;
 }
 
 /**
@@ -208,7 +184,7 @@ export class LAppTextureManager {
  */
 export class TextureInfo {
   img: HTMLImageElement; // 画像
-  id: WebGLTexture | null = null; // テクスチャ
+  id: WebGLTexture = null; // テクスチャ
   width = 0; // 横幅
   height = 0; // 高さ
   usePremultply: boolean; // Premult処理を有効にするか

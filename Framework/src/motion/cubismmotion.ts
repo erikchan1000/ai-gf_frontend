@@ -827,12 +827,13 @@ export class CubismMotion extends ACubismMotion {
       // Segments
       for (
         let segmentPosition = 0;
-        segmentPosition < json.getMotionCurveSegmentCount(curveCount) - 6;
+        segmentPosition < json.getMotionCurveSegmentCount(curveCount);
 
       ) {
         if (segmentPosition == 0) {
           this._motionData.segments.at(totalSegmentCount).basePointIndex =
             totalPointCount;
+
           this._motionData.points.at(totalPointCount).time =
             json.getMotionCurveSegment(curveCount, segmentPosition);
           this._motionData.points.at(totalPointCount).value =
@@ -857,10 +858,7 @@ export class CubismMotion extends ACubismMotion {
               CubismMotionSegmentType.CubismMotionSegmentType_Linear;
             this._motionData.segments.at(totalSegmentCount).evaluate =
               linearEvaluate;
-            if (!this._motionData.points.at(totalPointCount)) {
-              console.log("TotalPointCount", totalPointCount);
-              console.log("tes", this._motionData.points);
-            }
+
             this._motionData.points.at(totalPointCount).time =
               json.getMotionCurveSegment(curveCount, segmentPosition + 1);
             this._motionData.points.at(totalPointCount).value =
@@ -874,6 +872,7 @@ export class CubismMotion extends ACubismMotion {
           case CubismMotionSegmentType.CubismMotionSegmentType_Bezier: {
             this._motionData.segments.at(totalSegmentCount).segmentType =
               CubismMotionSegmentType.CubismMotionSegmentType_Bezier;
+
             if (areBeziersRestructed || UseOldBeziersCurveMotion) {
               this._motionData.segments.at(totalSegmentCount).evaluate =
                 bezierEvaluate;
@@ -881,6 +880,7 @@ export class CubismMotion extends ACubismMotion {
               this._motionData.segments.at(totalSegmentCount).evaluate =
                 bezierEvaluateCardanoInterpretation;
             }
+
             this._motionData.points.at(totalPointCount).time =
               json.getMotionCurveSegment(curveCount, segmentPosition + 1);
             this._motionData.points.at(totalPointCount).value =

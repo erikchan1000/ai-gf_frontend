@@ -116,6 +116,9 @@ export class LAppView {
     if (this._back) {
       this._back.render(this._programId as WebGLProgram);
     }
+    if (this._gear) {
+      this._gear.render(this._programId as WebGLProgram);
+    }
 
     gl.flush();
 
@@ -172,8 +175,9 @@ export class LAppView {
     };
 
     textureManager.createTextureFromPngFile(
-      resourcesPath,
-      false
+      resourcesPath + imageName,
+      false,
+      initGearTexture
     );
 
     // シェーダーを作成
@@ -208,7 +212,7 @@ export class LAppView {
 
     const viewX: number | undefined = this.transformViewX(this._touchManager.getX());
     const viewY: number | undefined = this.transformViewY(this._touchManager.getY());
-
+    
     if (viewX === undefined || viewY === undefined) {
       return;
     }
@@ -235,7 +239,7 @@ export class LAppView {
 
     {
       // シングルタップ
-
+      
       if (!this._deviceToScreen || !this._touchManager) {
         return;
       }

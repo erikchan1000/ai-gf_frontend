@@ -128,7 +128,7 @@ export class CubismUserModel {
    *
    * @param buffer    moc3ファイルが読み込まれているバッファ
    */
-  public loadModel(buffer: ArrayBuffer | undefined, shouldCheckMocConsistency = false) {
+  public loadModel(buffer: ArrayBuffer, shouldCheckMocConsistency = false) {
     this._moc = CubismMoc.create(buffer, shouldCheckMocConsistency);
 
     if (this._moc == null) {
@@ -178,8 +178,8 @@ export class CubismUserModel {
    * @param name 表情の名前
    */
   public loadExpression(
-    buffer: ArrayBuffer | undefined,
-    size: number | undefined,
+    buffer: ArrayBuffer,
+    size: number,
     name: string
   ): ACubismMotion {
     if (buffer == null || size == 0) {
@@ -432,10 +432,6 @@ export class CubismUserModel {
     CubismModelUserData.delete(this._modelUserData);
 
     this.deleteRenderer();
-  }
-
-  public getMotionManager() {
-    return this._motionManager;
   }
 
   protected _moc: CubismMoc; // Mocデータ

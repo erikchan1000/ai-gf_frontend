@@ -331,7 +331,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
     if (!this.isExistMotionGroups()) {
       return 0;
     }
-    console.log("test", this._jsonValue)
+
     return this._jsonValue
       .at(FrequestNode.FrequestNode_Motions)
       .getKeys()
@@ -380,7 +380,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
     if (!this.isExistMotionGroupName(groupName)) {
       return '';
     }
-    console.log("test", this._jsonValue)
+
     return this._jsonValue
       .at(FrequestNode.FrequestNode_Motions)
       .getValueByString(groupName)

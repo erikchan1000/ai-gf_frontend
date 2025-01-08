@@ -1,0 +1,65 @@
+$breakinghits-color-brand-text-gradient-stop1: #4285f4;
+$breakinghits-color-brand-text-gradient-stop2: #9b72cb;
+$breakinghits-color-brand-text-gradient-stop3: #d96570;
+$breakinghits-color-brand-surface: #131314;
+
+.subheader {
+  font-size: 5rem;
+  color: white; 
+
+  @media (max-width: 768px) {
+    font-size: 3rem;
+  }
+}
+
+.subheader-2 {
+  font-size: 2.75rem;
+  color: white;
+  margin-top: -1rem;
+  font-weight: 200;
+}
+
+@media (max-width: 768px) {
+  .subheader-2 {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+  }
+}
+
+.introduction-header {
+  background: linear-gradient(74deg, $breakinghits-color-brand-text-gradient-stop1 0,
+    $breakinghits-color-brand-text-gradient-stop2 9%,
+    $breakinghits-color-brand-text-gradient-stop3 20%,
+    $breakinghits-color-brand-text-gradient-stop3 24%,
+    $breakinghits-color-brand-text-gradient-stop2 35%,
+    $breakinghits-color-brand-text-gradient-stop1 44%,
+    $breakinghits-color-brand-text-gradient-stop2 50%,
+    $breakinghits-color-brand-text-gradient-stop3 56%,
+    $breakinghits-color-brand-surface 75%,
+    $breakinghits-color-brand-surface 100%
+  );
+  min-width: 100%;
+
+  color: transparent;
+  -webkit-background-clip: text;
+  font-size: 5rem;
+  background-size: 400%;
+  background-position: 100% 0%;
+  //screen size mobile
+  @media (max-width: 768px) {
+    font-size: 2.25rem;
+  }
+  
+  @keyframes gradient {
+    0% {
+      background-position: 100% 0%;
+    }
+    100% {
+      background-position: 0% 0%;
+    }
+  }
+
+  animation: gradient 2s linear forwards;
+  line-height: 1.2;
+
+}
